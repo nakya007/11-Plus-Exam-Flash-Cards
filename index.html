@@ -8,51 +8,96 @@
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
+html, body {
+  height: 100%;
+}
+
 body {
   font-family: 'Nunito', sans-serif;
-  min-height: 100vh;
+  min-height: 100%;
   background: linear-gradient(160deg, #0d0d2b 0%, #1a0533 45%, #0d1b4a 100%);
+  background-attachment: fixed;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 30px 20px;
-  overflow: hidden;
   position: relative;
+  overflow: hidden;
 }
 
-/* ── Star field ── */
-.star-field { position: fixed; inset: 0; pointer-events: none; }
+/* ── Background layer (fixed, contains stars + floaties) ── */
+#bgLayer {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+/* Stars */
 .star {
   position: absolute;
   background: white;
   border-radius: 50%;
+  -webkit-animation: twinkle ease-in-out infinite;
   animation: twinkle ease-in-out infinite;
+}
+@-webkit-keyframes twinkle {
+  0%, 100% { opacity: 0.15; -webkit-transform: scale(1); transform: scale(1); }
+  50%       { opacity: 1;    -webkit-transform: scale(1.8); transform: scale(1.8); }
 }
 @keyframes twinkle {
   0%, 100% { opacity: 0.15; transform: scale(1); }
   50%       { opacity: 1;    transform: scale(1.8); }
 }
 
-/* ── Floating emojis ── */
+/* Floating emojis — absolute inside fixed bgLayer */
 .floaty {
-  position: fixed;
+  position: absolute;
   pointer-events: none;
   user-select: none;
   opacity: 0;
+  -webkit-animation: rise linear infinite;
   animation: rise linear infinite;
+  will-change: transform, opacity;
 }
-@keyframes rise {
-  0%   { transform: translateY(105vh) rotate(0deg);   opacity: 0; }
+@-webkit-keyframes rise {
+  0%   { -webkit-transform: translate3d(0, 110vh, 0) rotate(0deg);   opacity: 0; }
   8%   { opacity: 0.18; }
   92%  { opacity: 0.18; }
-  100% { transform: translateY(-10vh) rotate(720deg); opacity: 0; }
+  100% { -webkit-transform: translate3d(0, -10vh, 0) rotate(720deg); opacity: 0; }
+}
+@keyframes rise {
+  0%   { transform: translate3d(0, 110vh, 0) rotate(0deg);   opacity: 0; }
+  8%   { opacity: 0.18; }
+  92%  { opacity: 0.18; }
+  100% { transform: translate3d(0, -10vh, 0) rotate(720deg); opacity: 0; }
 }
 
-/* ── Content ── */
+/* Shooting star */
+.shoot {
+  position: absolute;
+  height: 2px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.95), transparent);
+  -webkit-animation: shoot 0.7s ease-out forwards;
+  animation: shoot 0.7s ease-out forwards;
+  will-change: transform, opacity;
+}
+@-webkit-keyframes shoot {
+  0%   { opacity: 1; -webkit-transform: translate3d(0,0,0) rotate(-20deg); }
+  100% { opacity: 0; -webkit-transform: translate3d(200px,70px,0) rotate(-20deg); }
+}
+@keyframes shoot {
+  0%   { opacity: 1; transform: translate3d(0,0,0) rotate(-20deg); }
+  100% { opacity: 0; transform: translate3d(200px,70px,0) rotate(-20deg); }
+}
+
+/* ── Main content ── */
 .content {
   position: relative;
-  z-index: 10;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -60,20 +105,25 @@ body {
   max-width: 620px;
 }
 
-/* Bouncing star */
 .hero-emoji {
   font-size: 4.5em;
   line-height: 1;
   margin-bottom: 14px;
+  -webkit-animation: bob 2.4s ease-in-out infinite;
   animation: bob 2.4s ease-in-out infinite;
+  -webkit-filter: drop-shadow(0 0 18px rgba(255,220,50,0.7));
   filter: drop-shadow(0 0 18px rgba(255,220,50,0.7));
+  will-change: transform;
+}
+@-webkit-keyframes bob {
+  0%, 100% { -webkit-transform: translate3d(0,0,0) rotate(-5deg); }
+  50%       { -webkit-transform: translate3d(0,-16px,0) rotate(5deg); }
 }
 @keyframes bob {
-  0%, 100% { transform: translateY(0) rotate(-5deg); }
-  50%       { transform: translateY(-16px) rotate(5deg); }
+  0%, 100% { transform: translate3d(0,0,0) rotate(-5deg); }
+  50%       { transform: translate3d(0,-16px,0) rotate(5deg); }
 }
 
-/* Rainbow title */
 .title {
   font-size: clamp(2.2em, 8vw, 3.4em);
   font-weight: 900;
@@ -84,10 +134,8 @@ body {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  filter: drop-shadow(0 2px 12px rgba(200,100,255,0.4));
 }
 
-/* Gold badge */
 .badge {
   background: linear-gradient(135deg, #f9d423, #ff8c00);
   color: #1a1a2e;
@@ -129,9 +177,11 @@ a.card {
   position: relative;
   overflow: hidden;
   box-shadow: 0 14px 50px rgba(0,0,0,0.5);
+  -webkit-transition: -webkit-transform 0.28s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.28s ease;
   transition: transform 0.28s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.28s ease;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  will-change: transform;
 }
 a.card::before {
   content: '';
@@ -140,8 +190,8 @@ a.card::before {
   background: radial-gradient(ellipse at 30% 30%, rgba(255,255,255,0.18) 0%, transparent 65%);
   pointer-events: none;
 }
-a.card:hover  { transform: translateY(-10px) scale(1.06); box-shadow: 0 24px 70px rgba(0,0,0,0.55); }
-a.card:active { transform: scale(0.97); }
+a.card:hover  { -webkit-transform: translateY(-10px) scale(1.06); transform: translateY(-10px) scale(1.06); box-shadow: 0 24px 70px rgba(0,0,0,0.55); }
+a.card:active { -webkit-transform: scale(0.97); transform: scale(0.97); }
 
 .english { background: linear-gradient(140deg, #7b2d8b 0%, #c45fdc 100%); }
 .maths   { background: linear-gradient(140deg, #1565c0 0%, #42a5f5 100%); }
@@ -159,7 +209,6 @@ a.card:active { transform: scale(0.97); }
   letter-spacing: 1px;
 }
 
-/* ── Footer ── */
 .footer {
   margin-top: 44px;
   color: rgba(255,255,255,0.28);
@@ -170,7 +219,12 @@ a.card:active { transform: scale(0.97); }
 }
 .footer span {
   display: inline-block;
+  -webkit-animation: sparkle-pop 3s ease-in-out infinite;
   animation: sparkle-pop 3s ease-in-out infinite;
+}
+@-webkit-keyframes sparkle-pop {
+  0%, 100% { -webkit-transform: scale(1); }
+  50%       { -webkit-transform: scale(1.4) rotate(20deg); }
 }
 @keyframes sparkle-pop {
   0%, 100% { transform: scale(1); }
@@ -180,7 +234,8 @@ a.card:active { transform: scale(0.97); }
 </head>
 <body>
 
-<div class="star-field" id="starField"></div>
+<!-- Single fixed background layer for all animated elements -->
+<div id="bgLayer"></div>
 
 <div class="content">
   <div class="hero-emoji">🌟</div>
@@ -207,58 +262,46 @@ a.card:active { transform: scale(0.97); }
 </div>
 
 <script>
-// ── Twinkling stars ──────────────────────────────────────
-const sf = document.getElementById('starField');
-for (let i = 0; i < 100; i++) {
-  const s = document.createElement('div');
+var bg = document.getElementById('bgLayer');
+
+// ── Twinkling stars ──────────────────────────────────────────
+for (var i = 0; i < 100; i++) {
+  var s = document.createElement('div');
   s.className = 'star';
-  const sz = Math.random() * 2.5 + 0.8;
-  s.style.cssText = `
-    width:${sz}px; height:${sz}px;
-    top:${Math.random()*100}%; left:${Math.random()*100}%;
-    animation-duration:${(Math.random()*3+1.5).toFixed(1)}s;
-    animation-delay:${(Math.random()*5).toFixed(1)}s;
-  `;
-  sf.appendChild(s);
+  var sz = (Math.random() * 2.5 + 0.8).toFixed(1);
+  s.style.cssText = 'width:' + sz + 'px;height:' + sz + 'px;'
+    + 'top:' + (Math.random() * 100).toFixed(1) + '%;'
+    + 'left:' + (Math.random() * 100).toFixed(1) + '%;'
+    + 'animation-duration:' + (Math.random() * 3 + 1.5).toFixed(1) + 's;'
+    + 'animation-delay:' + (Math.random() * 5).toFixed(1) + 's;';
+  bg.appendChild(s);
 }
 
-// ── Shooting star ────────────────────────────────────────
+// ── Shooting stars ───────────────────────────────────────────
 function shootingStar() {
-  const s = document.createElement('div');
-  s.style.cssText = `
-    position:fixed; pointer-events:none; z-index:5;
-    width:${60+Math.random()*80}px; height:2px;
-    top:${Math.random()*60}%; left:${Math.random()*60}%;
-    background:linear-gradient(90deg,rgba(255,255,255,0.9),transparent);
-    border-radius:2px;
-    animation:shoot 0.7s ease-out forwards;
-  `;
-  document.body.appendChild(s);
-  if (!document.getElementById('shootKF')) {
-    const kf = document.createElement('style');
-    kf.id = 'shootKF';
-    kf.textContent = `@keyframes shoot{0%{opacity:1;transform:translateX(0) rotate(-20deg)}100%{opacity:0;transform:translateX(180px) translateY(60px) rotate(-20deg)}}`;
-    document.head.appendChild(kf);
-  }
-  setTimeout(() => s.remove(), 800);
-  setTimeout(shootingStar, 3000 + Math.random() * 6000);
+  var el = document.createElement('div');
+  el.className = 'shoot';
+  el.style.cssText = 'width:' + (60 + Math.random() * 80).toFixed(0) + 'px;'
+    + 'top:' + (Math.random() * 60).toFixed(1) + '%;'
+    + 'left:' + (Math.random() * 60).toFixed(1) + '%;';
+  bg.appendChild(el);
+  setTimeout(function() { el.parentNode && el.parentNode.removeChild(el); }, 800);
+  setTimeout(shootingStar, 3500 + Math.random() * 6000);
 }
 setTimeout(shootingStar, 2000);
 
-// ── Floating emojis ──────────────────────────────────────
-const pool = ['⭐','🦄','🌈','🎈','🚀','🦋','🌺','🎮','🐉','🏆','✨','🎯','🐸','🦁','🐬'];
-pool.forEach((em, i) => {
-  const el = document.createElement('div');
+// ── Floating emojis ──────────────────────────────────────────
+var pool = ['⭐','🦄','🌈','🎈','🚀','🦋','🌺','🎮','🐉','🏆','✨','🎯','🐸','🦁','🐬'];
+pool.forEach(function(em, i) {
+  var el = document.createElement('div');
   el.className = 'floaty';
   el.textContent = em;
-  const dur = 14 + Math.random() * 10;
-  el.style.cssText = `
-    left:${(i / pool.length * 100) + Math.random() * 4}%;
-    font-size:${1.4 + Math.random() * 0.8}em;
-    animation-duration:${dur.toFixed(1)}s;
-    animation-delay:${(Math.random() * dur).toFixed(1)}s;
-  `;
-  document.body.appendChild(el);
+  var dur = (14 + Math.random() * 10).toFixed(1);
+  el.style.cssText = 'left:' + ((i / pool.length * 100) + Math.random() * 4).toFixed(1) + '%;'
+    + 'font-size:' + (1.4 + Math.random() * 0.8).toFixed(1) + 'em;'
+    + 'animation-duration:' + dur + 's;'
+    + 'animation-delay:' + (Math.random() * parseFloat(dur)).toFixed(1) + 's;';
+  bg.appendChild(el);
 });
 </script>
 </body>
