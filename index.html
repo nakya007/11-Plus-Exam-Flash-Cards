@@ -241,6 +241,7 @@ a.card:active { -webkit-transform: scale(0.97); transform: scale(0.97); }
   <div class="hero-emoji">🌟</div>
   <div class="title">Prisha's<br>Flashcards</div>
   <div class="badge">🏆 Grammar School Champion</div>
+  <div id="homeStreak" style="display:none;margin-bottom:8px;font-family:'Nunito',sans-serif;font-weight:900;font-size:0.88em;color:#fbbf24;letter-spacing:1px"></div>
   <div class="subtitle">Pillai Tutors · Sutton</div>
 
   <div class="cards">
@@ -260,6 +261,19 @@ a.card:active { -webkit-transform: scale(0.97); transform: scale(0.97); }
 
   <div class="footer">You've got this, Prisha! <span>✨</span></div>
 </div>
+
+<script>
+(function() {
+  try {
+    var s = JSON.parse(localStorage.getItem('prisha_streak') || '{"date":"","count":0}');
+    var el = document.getElementById('homeStreak');
+    if (el && s.count >= 1) {
+      el.textContent = '🔥 ' + s.count + ' day streak!';
+      el.style.display = 'block';
+    }
+  } catch(e) {}
+})();
+</script>
 
 <script>
 var bg = document.getElementById('bgLayer');
