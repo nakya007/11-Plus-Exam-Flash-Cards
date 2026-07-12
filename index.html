@@ -79,6 +79,47 @@ body{font-family:'Nunito',sans-serif;background:#06061a;color:#e8eaf6;min-height
 .overlay-title{font-size:18px;font-weight:900;text-align:center;margin-bottom:4px;}
 .overlay-sub{font-size:12px;opacity:0.4;text-align:center;margin-bottom:20px;}
 
+/* ── Welcome screen ── */
+#screenWelcome{position:relative;overflow:visible;min-height:420px;justify-content:center;padding-top:20px;}
+
+.welcome-badge{display:inline-block;background:linear-gradient(90deg,#f9d423,#ff8c00);color:#1a1a2e;font-size:12px;font-weight:900;padding:5px 14px;border-radius:20px;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:18px;box-shadow:0 2px 14px rgba(249,212,35,0.4);}
+
+.welcome-title{font-size:42px;font-weight:900;text-align:center;line-height:1.1;margin-bottom:12px;background:linear-gradient(135deg,#fff 30%,#90caf9 70%,#ce93d8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+.welcome-tagline{font-size:14px;opacity:0.55;text-align:center;margin-bottom:32px;letter-spacing:0.3px;}
+
+.btn-student{width:100%;padding:18px 22px;border-radius:20px;border:none;background:linear-gradient(90deg,#f9d423,#ff8c00);color:#1a1a2e;font-family:'Nunito',sans-serif;font-size:18px;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:space-between;box-shadow:0 6px 28px rgba(249,212,35,0.45);transition:transform 0.15s,box-shadow 0.15s;margin-bottom:12px;}
+.btn-student:hover{transform:translateY(-3px);box-shadow:0 10px 32px rgba(249,212,35,0.55);}
+.btn-student:active{transform:scale(0.97);}
+.btn-student-icon{font-size:24px;}
+.btn-student-text{flex:1;text-align:center;}
+.btn-student-arrow{font-size:20px;opacity:0.7;}
+
+.btn-admin-link{background:none;border:1px solid rgba(255,255,255,0.12);border-radius:14px;color:rgba(255,255,255,0.35);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;padding:10px 20px;transition:color 0.15s,border-color 0.15s;}
+.btn-admin-link:hover{color:rgba(255,255,255,0.6);border-color:rgba(255,255,255,0.25);}
+
+/* Floating background emojis */
+.welcome-floaters{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.floater{position:absolute;font-size:26px;animation:floatUp 6s ease-in-out infinite;opacity:0.18;}
+.f1{left:5%; top:15%; animation-delay:0s;   animation-duration:5.5s;}
+.f2{left:80%;top:10%; animation-delay:0.8s; animation-duration:6.5s;}
+.f3{left:12%;top:65%; animation-delay:1.5s; animation-duration:5s;}
+.f4{left:75%;top:60%; animation-delay:2.2s; animation-duration:7s;}
+.f5{left:45%;top:5%;  animation-delay:3s;   animation-duration:6s;}
+.f6{left:88%;top:35%; animation-delay:1s;   animation-duration:5.8s;}
+@keyframes floatUp{0%,100%{transform:translateY(0) rotate(-5deg);}50%{transform:translateY(-18px) rotate(5deg);}}
+
+/* Twinkling stars */
+.welcome-stars{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
+.star{position:absolute;font-size:14px;animation:twinkle 3s ease-in-out infinite;opacity:0.6;}
+.s1{left:20%;top:8%;  animation-delay:0s;}
+.s2{left:70%;top:5%;  animation-delay:0.6s;}
+.s3{left:90%;top:20%; animation-delay:1.2s;}
+.s4{left:8%; top:40%; animation-delay:1.8s;}
+.s5{left:55%;top:82%; animation-delay:0.4s;}
+.s6{left:30%;top:88%; animation-delay:2.1s;}
+@keyframes twinkle{0%,100%{opacity:0.6;transform:scale(1);}50%{opacity:0.15;transform:scale(0.6);}}
+
 /* Loading spinner */
 .spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,0.1);border-top-color:#42a5f5;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:14px;}
 @keyframes spin{to{transform:rotate(360deg);}}
@@ -87,6 +128,8 @@ body{font-family:'Nunito',sans-serif;background:#06061a;color:#e8eaf6;min-height
 @media(max-width:400px){
   .theme-grid{grid-template-columns:repeat(2,1fr);}
   .greeting{font-size:26px;}
+  .welcome-title{font-size:34px;}
+  .btn-student{font-size:16px;}
 }
 </style>
 </head>
@@ -100,11 +143,27 @@ body{font-family:'Nunito',sans-serif;background:#06061a;color:#e8eaf6;min-height
 
 <!-- WELCOME -->
 <div class="screen" id="screenWelcome">
-  <div class="logo">📖</div>
-  <div class="screen-title">Grammar School Prep</div>
-  <div class="screen-sub">11+ Flash Cards</div>
-  <button class="btn btn-primary" onclick="showScreen('screenInvite')">I'm a Student 🎒</button>
-  <button class="btn btn-ghost" onclick="window.location.href='admin.html'">Admin Login 🔐</button>
+  <div class="welcome-stars" aria-hidden="true">
+    <span class="star s1">⭐</span><span class="star s2">✨</span><span class="star s3">🌟</span>
+    <span class="star s4">✨</span><span class="star s5">⭐</span><span class="star s6">💫</span>
+  </div>
+  <div class="welcome-floaters" aria-hidden="true">
+    <span class="floater f1">🚀</span>
+    <span class="floater f2">📚</span>
+    <span class="floater f3">✏️</span>
+    <span class="floater f4">🔢</span>
+    <span class="floater f5">🏆</span>
+    <span class="floater f6">💡</span>
+  </div>
+  <div class="welcome-badge">11+ Exam Flash Cards</div>
+  <div class="welcome-title">Grammar<br>School Prep</div>
+  <div class="welcome-tagline">Learn · Practise · Achieve 🎯</div>
+  <button class="btn-student" onclick="showScreen('screenInvite')">
+    <span class="btn-student-icon">🎒</span>
+    <span class="btn-student-text">I'm a Student</span>
+    <span class="btn-student-arrow">→</span>
+  </button>
+  <button class="btn-admin-link" onclick="window.location.href='admin.html'">Admin Login 🔐</button>
 </div>
 
 <!-- INVITE CODE -->
@@ -143,6 +202,10 @@ body{font-family:'Nunito',sans-serif;background:#06061a;color:#e8eaf6;min-height
 
 <!-- HOME -->
 <div class="screen" id="screenHome">
+  <div id="adminPreviewBar" style="display:none;width:100%;background:rgba(249,212,35,0.12);border:1px solid rgba(249,212,35,0.3);border-radius:12px;padding:8px 14px;margin-bottom:14px;align-items:center;justify-content:space-between;gap:10px;">
+    <span style="color:#ffd54f;font-size:12px;font-weight:800;">🔐 Admin Preview Mode</span>
+    <button onclick="exitAdminPreview()" style="background:rgba(249,212,35,0.2);border:1px solid rgba(249,212,35,0.35);color:#ffd54f;font-size:11px;font-weight:800;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:inherit;">← Back to Admin</button>
+  </div>
   <div class="greeting" id="homeGreeting">Hi there! 👋</div>
   <div class="greeting-sub">Ready to practise today?</div>
   <div class="stats-row">
@@ -237,9 +300,31 @@ function buildThemeGrid(containerId, activeKey, onPick) {
   });
 }
 
+// ── Admin preview mode ────────────────────────────────────────────
+function enterAdminPreview() {
+  currentProfile = { id: 'admin_preview', name: 'Admin', theme: 'space', xp: 0, streak: 0, badges: [], ratings: {} };
+  applyTheme('space');
+  renderHome();
+  document.getElementById('adminPreviewBar').style.display = 'flex';
+  showScreen('screenHome');
+}
+
+function exitAdminPreview() {
+  localStorage.removeItem('gsc_admin_preview');
+  window.location.href = 'admin.html';
+}
+
 // ── Init ─────────────────────────────────────────────────────────
 async function init() {
   buildThemeGrid('themeGridCreate', selectedTheme, k => { selectedTheme = k; applyTheme(k); });
+
+  // Admin preview bypass
+  const urlParams = new URLSearchParams(window.location.search);
+  if (urlParams.get('preview') === '1' || localStorage.getItem('gsc_admin_preview') === '1') {
+    localStorage.setItem('gsc_admin_preview', '1');
+    enterAdminPreview();
+    return;
+  }
 
   const userId = localStorage.getItem('gsc_userId');
   if (userId) {
