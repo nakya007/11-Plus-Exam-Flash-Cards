@@ -2,186 +2,374 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Prisha's Flashcards ⭐</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800;900&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Grammar School Prep — Flash Cards</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <style>
-*{box-sizing:border-box;margin:0;padding:0;}
+*{margin:0;padding:0;box-sizing:border-box;}
 html,body{height:100%;}
-body{font-family:"Nunito",sans-serif;min-height:100%;background:linear-gradient(160deg,#0d0d2b 0%,#1a0533 45%,#0d1b4a 100%);background-attachment:fixed;display:flex;flex-direction:column;align-items:center;padding:32px 16px 48px;position:relative;overflow-x:hidden;}
-#bgLayer{position:fixed;top:0;left:0;right:0;bottom:0;pointer-events:none;z-index:0;overflow:hidden;}
-.star{position:absolute;background:white;border-radius:50%;animation:twinkle ease-in-out infinite;}
-@keyframes twinkle{0%,100%{opacity:0.15;transform:scale(1);}50%{opacity:1;transform:scale(1.8);}}
-.floaty{position:absolute;pointer-events:none;user-select:none;opacity:0;animation:rise linear infinite;will-change:transform,opacity;}
-@keyframes rise{0%{transform:translate3d(0,110vh,0) rotate(0deg);opacity:0;}8%{opacity:0.18;}92%{opacity:0.18;}100%{transform:translate3d(0,-10vh,0) rotate(720deg);opacity:0;}}
-.shoot{position:absolute;height:2px;border-radius:2px;background:linear-gradient(90deg,rgba(255,255,255,0.95),transparent);animation:shoot 0.7s ease-out forwards;}
-@keyframes shoot{0%{opacity:1;transform:translate3d(0,0,0) rotate(-20deg);}100%{opacity:0;transform:translate3d(200px,70px,0) rotate(-20deg);}}
-.content{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%;max-width:660px;}
-.hero-emoji{font-size:4.2em;line-height:1;margin-bottom:12px;animation:bob 2.4s ease-in-out infinite;filter:drop-shadow(0 0 18px rgba(255,220,50,0.7));}
-@keyframes bob{0%,100%{transform:translate3d(0,0,0) rotate(-5deg);}50%{transform:translate3d(0,-16px,0) rotate(5deg);}}
-.title{font-size:clamp(2em,8vw,3.2em);font-weight:900;text-align:center;line-height:1.1;margin-bottom:12px;background:linear-gradient(135deg,#f9d423 0%,#ff6b6b 30%,#c471f5 65%,#12c2e9 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-.badge{background:linear-gradient(135deg,#f9d423,#ff8c00);color:#1a1a2e;font-size:0.85em;font-weight:900;padding:7px 20px;border-radius:40px;margin-bottom:8px;letter-spacing:0.5px;box-shadow:0 4px 20px rgba(249,212,35,0.5);}
+body{font-family:'Nunito',sans-serif;background:#06061a;color:#e8eaf6;min-height:100vh;overflow-x:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px 20px;transition:background 0.4s,color 0.4s;}
 
-/* ── Dashboard panel ── */
-.dashboard{width:100%;max-width:500px;margin-bottom:20px;}
-.home-streak{display:none;align-items:center;justify-content:center;gap:8px;background:rgba(255,165,0,0.12);border:1px solid rgba(255,165,0,0.35);border-radius:20px;padding:8px 18px;font-size:14px;font-weight:700;color:#ffd54f;margin:0 auto 10px;}
+.screen{display:none;width:100%;max-width:460px;flex-direction:column;align-items:center;animation:fadeUp 0.3s ease;}
+.screen.active{display:flex;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
 
-/* ── XP dashboard bar ── */
-.home-xp-wrap{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:14px 18px;margin-bottom:10px;}
-.home-xp-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
-.home-level{font-size:15px;font-weight:800;color:#ffd54f;}
-.home-xp-label{font-size:12px;color:rgba(255,255,255,0.5);}
-.home-xp-track{height:10px;background:rgba(255,255,255,0.12);border-radius:99px;overflow:hidden;}
-.home-xp-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#f9d423,#ff8c00);transition:width 0.7s ease;width:0;}
+.logo{font-size:52px;margin-bottom:10px;line-height:1;}
+.screen-title{font-size:24px;font-weight:900;text-align:center;margin-bottom:4px;line-height:1.2;}
+.screen-sub{font-size:13px;opacity:0.45;text-align:center;margin-bottom:28px;}
 
-/* ── Stats row ── */
-.home-stats{display:flex;gap:8px;margin-bottom:10px;}
-.home-stat{flex:1;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px 8px;text-align:center;}
-.home-stat .hstat-val{font-size:22px;font-weight:900;display:block;color:#e8eaf6;}
-.home-stat .hstat-lbl{font-size:10px;opacity:0.55;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;}
+.btn{width:100%;padding:15px;border-radius:16px;border:none;font-size:15px;font-weight:800;cursor:pointer;font-family:'Nunito',sans-serif;transition:transform 0.12s,box-shadow 0.12s,opacity 0.12s;margin-bottom:10px;display:flex;align-items:center;justify-content:center;gap:8px;}
+.btn:hover{transform:translateY(-2px);}
+.btn:active{transform:scale(0.97);}
+.btn:disabled{opacity:0.5;cursor:not-allowed;transform:none;}
+.btn-primary{background:linear-gradient(90deg,#1565c0,#42a5f5);color:#fff;box-shadow:0 4px 20px rgba(66,165,245,0.35);}
+.btn-ghost{background:rgba(255,255,255,0.07);color:inherit;border:1px solid rgba(255,255,255,0.14);}
 
-/* ── Focus areas ── */
-.home-focus{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:14px;padding:12px 14px;margin-bottom:12px;display:none;}
-.home-focus-title{font-size:12px;font-weight:800;color:#fca5a5;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
-.home-weak-chips{display:flex;flex-wrap:wrap;gap:6px;}
-.home-weak-chip{background:rgba(239,68,68,0.2);border:1px solid rgba(239,68,68,0.3);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:700;color:#fca5a5;}
+.input-wrap{width:100%;margin-bottom:14px;}
+.input-label{display:block;font-size:12px;font-weight:700;opacity:0.6;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.5px;}
+.input-field{width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.06);color:inherit;font-size:16px;font-family:'Nunito',sans-serif;outline:none;transition:border-color 0.15s;}
+.input-field:focus{border-color:rgba(66,165,245,0.55);}
+.input-field::placeholder{opacity:0.3;}
 
-/* ── Badges row ── */
-.home-badges{display:none;background:rgba(249,212,35,0.07);border:1px solid rgba(249,212,35,0.2);border-radius:14px;padding:10px 14px;margin-bottom:12px;}
-.home-badges-title{font-size:12px;font-weight:800;color:#ffd54f;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;}
-.home-badge-chips{display:flex;flex-wrap:wrap;gap:6px;}
-.home-badge-chip{display:inline-flex;align-items:center;gap:4px;background:rgba(249,212,35,0.15);border:1px solid rgba(249,212,35,0.3);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:700;color:#ffd54f;}
+.err{color:#ef9a9a;font-size:13px;text-align:center;margin-bottom:10px;min-height:18px;}
+.back-link{color:rgba(255,255,255,0.3);font-size:13px;cursor:pointer;margin-top:6px;text-decoration:underline;background:none;border:none;font-family:inherit;}
+.back-link:hover{color:rgba(255,255,255,0.55);}
 
-/* ── Subject cards ── */
-.subtitle{color:rgba(255,255,255,0.35);font-size:0.75em;font-weight:800;margin-bottom:20px;text-align:center;letter-spacing:2px;text-transform:uppercase;}
-.cards{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;width:100%;}
-a.card{display:flex;flex-direction:column;align-items:center;justify-content:center;width:220px;height:200px;border-radius:26px;text-decoration:none;color:white;text-align:center;padding:24px;border:2px solid rgba(255,255,255,0.18);position:relative;overflow:hidden;box-shadow:0 14px 50px rgba(0,0,0,0.5);transition:transform 0.28s cubic-bezier(0.34,1.56,0.64,1),box-shadow 0.28s ease;}
-a.card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 30%,rgba(255,255,255,0.18) 0%,transparent 65%);pointer-events:none;}
-a.card:hover{transform:translateY(-10px) scale(1.06);box-shadow:0 24px 70px rgba(0,0,0,0.55);}
-a.card:active{transform:scale(0.97);}
-.english{background:linear-gradient(140deg,#7b2d8b 0%,#c45fdc 100%);}
-.maths{background:linear-gradient(140deg,#1565c0 0%,#42a5f5 100%);}
-.card-icon{font-size:3.2em;margin-bottom:8px;line-height:1;}
-.card-name{font-size:1.4em;font-weight:900;letter-spacing:0.5px;}
-.card-sub{font-size:0.68em;font-weight:700;opacity:0.8;margin-top:5px;}
-.card-go{margin-top:10px;background:rgba(255,255,255,0.22);border-radius:20px;padding:4px 14px;font-size:0.76em;font-weight:900;letter-spacing:1px;}
-.footer{margin-top:30px;color:rgba(255,255,255,0.28);font-size:0.76em;font-weight:800;text-align:center;letter-spacing:1px;}
-.footer span{display:inline-block;animation:sparkle 3s ease-in-out infinite;}
-@keyframes sparkle{0%,100%{transform:scale(1);}50%{transform:scale(1.4) rotate(20deg);}}
-@media(max-width:480px){.home-stats{gap:6px;}.home-stat .hstat-val{font-size:18px;}.cards{gap:14px;}a.card{width:calc(50% - 7px);height:auto;padding:20px 12px;}.card-icon{font-size:2.5em;}.card-name{font-size:1.15em;}}
+/* Theme selector */
+.theme-section-label{font-size:12px;font-weight:700;opacity:0.55;text-transform:uppercase;letter-spacing:0.5px;width:100%;margin-bottom:10px;}
+.theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;margin-bottom:18px;}
+.theme-card{border-radius:14px;padding:14px 6px 12px;text-align:center;cursor:pointer;border:2px solid transparent;transition:transform 0.15s,border-color 0.15s,box-shadow 0.15s;position:relative;min-height:80px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;}
+.theme-card:hover{transform:scale(1.04);}
+.theme-card.selected{border-color:rgba(255,255,255,0.8);box-shadow:0 0 0 3px rgba(255,255,255,0.15);}
+.theme-card .t-emoji{font-size:24px;line-height:1;}
+.theme-card .t-name{font-size:10px;font-weight:800;opacity:0.9;line-height:1.2;}
+.t-check{position:absolute;top:5px;right:6px;font-size:12px;display:none;}
+.theme-card.selected .t-check{display:block;}
+
+/* Home */
+.greeting{font-size:30px;font-weight:900;text-align:center;margin-bottom:2px;}
+.greeting-sub{font-size:13px;opacity:0.45;text-align:center;margin-bottom:18px;}
+.stats-row{display:flex;gap:8px;width:100%;margin-bottom:22px;}
+.stat-pill{flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:12px 8px;text-align:center;}
+.stat-val{font-size:22px;font-weight:900;line-height:1;}
+.stat-lbl{font-size:10px;opacity:0.45;margin-top:3px;text-transform:uppercase;letter-spacing:0.3px;}
+.subject-btn{width:100%;padding:20px;border-radius:20px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:12px;display:flex;align-items:center;gap:14px;transition:transform 0.15s,box-shadow 0.15s;}
+.subject-btn:hover{transform:translateY(-3px);}
+.subject-btn:active{transform:scale(0.98);}
+.sb-icon{font-size:34px;line-height:1;flex-shrink:0;}
+.sb-info{text-align:left;}
+.sb-title{font-size:19px;font-weight:900;color:#fff;}
+.sb-sub{font-size:12px;color:rgba(255,255,255,0.6);margin-top:2px;}
+.btn-maths{background:linear-gradient(135deg,#1a237e,#1565c0);box-shadow:0 6px 24px rgba(21,101,192,0.4);}
+.btn-english{background:linear-gradient(135deg,#1b5e20,#2e7d32);box-shadow:0 6px 24px rgba(46,125,50,0.4);}
+.theme-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;margin-top:4px;margin-bottom:6px;transition:background 0.15s;}
+.theme-chip:hover{background:rgba(255,255,255,0.11);}
+.theme-chip-muted{opacity:0.4;font-size:11px;}
+.admin-link{margin-top:20px;color:rgba(255,255,255,0.18);font-size:11px;cursor:pointer;text-decoration:none;font-family:inherit;background:none;border:none;}
+.admin-link:hover{color:rgba(255,255,255,0.35);}
+
+/* Theme overlay */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:200;justify-content:center;align-items:flex-end;}
+.overlay.open{display:flex;}
+.overlay-sheet{background:#12122a;border-radius:24px 24px 0 0;padding:28px 24px 44px;width:100%;max-width:480px;animation:slideUp 0.28s ease;}
+@keyframes slideUp{from{transform:translateY(80px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.overlay-title{font-size:18px;font-weight:900;text-align:center;margin-bottom:4px;}
+.overlay-sub{font-size:12px;opacity:0.4;text-align:center;margin-bottom:20px;}
+
+/* Loading spinner */
+.spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,0.1);border-top-color:#42a5f5;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:14px;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-text{font-size:13px;opacity:0.4;}
+
+@media(max-width:400px){
+  .theme-grid{grid-template-columns:repeat(2,1fr);}
+  .greeting{font-size:26px;}
+}
 </style>
 </head>
 <body>
-<div id="bgLayer"></div>
-<div class="content">
-  <div class="hero-emoji">🌟</div>
-  <div class="title">Prisha's<br>Flashcards</div>
-  <div class="badge">🏆 Grammar School Champion</div>
 
-  <div class="dashboard">
-    <div class="home-streak" id="homeStreak"></div>
-    <div class="home-xp-wrap" id="homeXPWrap" style="display:none">
-      <div class="home-xp-top">
-        <span class="home-level" id="homeLevel">🌱 Seedling</span>
-        <span class="home-xp-label" id="homeXPLabel">0 XP</span>
-      </div>
-      <div class="home-xp-track"><div class="home-xp-fill" id="homeXPFill"></div></div>
-    </div>
-    <div class="home-stats" id="homeStats" style="display:none">
-      <div class="home-stat"><span class="hstat-val" id="hStatRated">0</span><span class="hstat-lbl">Cards Rated</span></div>
-      <div class="home-stat"><span class="hstat-val" id="hStatMastered">0</span><span class="hstat-lbl">Mastered</span></div>
-      <div class="home-stat"><span class="hstat-val" id="hStatBadges">0</span><span class="hstat-lbl">Badges</span></div>
-    </div>
-    <div class="home-focus" id="homeFocus">
-      <div class="home-focus-title">⚡ Needs Attention</div>
-      <div class="home-weak-chips" id="homeWeakChips"></div>
-    </div>
-    <div class="home-badges" id="homeBadgesWrap">
-      <div class="home-badges-title">🏅 Recent Badges</div>
-      <div class="home-badge-chips" id="homeBadgeChips"></div>
-    </div>
-  </div>
+<!-- LOADING -->
+<div class="screen active" id="screenLoading">
+  <div class="spinner"></div>
+  <div class="loading-text">Loading...</div>
+</div>
 
-  <div class="subtitle">11+ Grammar School Prep</div>
-  <div class="cards">
-    <a class="card english" href="English_Flashcards.html">
-      <div class="card-icon">📚</div>
-      <div class="card-name">English</div>
-      <div class="card-sub">42 cards · 17 topics</div>
-      <div class="card-go">Let's go! →</div>
-    </a>
-    <a class="card maths" href="Maths_Flashcards.html">
-      <div class="card-icon">🔢</div>
-      <div class="card-name">Maths</div>
-      <div class="card-sub">75 cards · 20 topics</div>
-      <div class="card-go">Let's go! →</div>
-    </a>
+<!-- WELCOME -->
+<div class="screen" id="screenWelcome">
+  <div class="logo">📖</div>
+  <div class="screen-title">Grammar School Prep</div>
+  <div class="screen-sub">11+ Flash Cards</div>
+  <button class="btn btn-primary" onclick="showScreen('screenInvite')">I'm a Student 🎒</button>
+  <button class="btn btn-ghost" onclick="window.location.href='admin.html'">Admin Login 🔐</button>
+</div>
+
+<!-- INVITE CODE -->
+<div class="screen" id="screenInvite">
+  <div class="logo">🔑</div>
+  <div class="screen-title">Enter Invite Code</div>
+  <div class="screen-sub">Ask your tutor for your code</div>
+  <div class="input-wrap">
+    <label class="input-label">Invite Code</label>
+    <input class="input-field" id="inviteInput" type="text" placeholder="e.g. PREP2025"
+      autocapitalize="characters" autocomplete="off"
+      oninput="this.value=this.value.toUpperCase()"
+      onkeydown="if(event.key==='Enter')validateInvite()">
   </div>
-  <div class="footer">You've got this, Prisha! <span>✨</span></div>
+  <div class="err" id="inviteErr"></div>
+  <button class="btn btn-primary" onclick="validateInvite()">Continue →</button>
+  <button class="back-link" onclick="showScreen('screenWelcome')">← Back</button>
+</div>
+
+<!-- PROFILE CREATION -->
+<div class="screen" id="screenProfile">
+  <div class="logo">✨</div>
+  <div class="screen-title">Create Your Profile</div>
+  <div class="screen-sub">Just a few quick things!</div>
+  <div class="input-wrap">
+    <label class="input-label">Your first name</label>
+    <input class="input-field" id="nameInput" type="text" placeholder="e.g. Prisha" maxlength="20"
+      onkeydown="if(event.key==='Enter')createProfile()">
+  </div>
+  <div class="theme-section-label">Choose your theme</div>
+  <div class="theme-grid" id="themeGridCreate"></div>
+  <div class="err" id="profileErr"></div>
+  <button class="btn btn-primary" id="createBtn" onclick="createProfile()">Let's Go! 🚀</button>
+  <button class="back-link" onclick="showScreen('screenInvite')">← Back</button>
+</div>
+
+<!-- HOME -->
+<div class="screen" id="screenHome">
+  <div class="greeting" id="homeGreeting">Hi there! 👋</div>
+  <div class="greeting-sub">Ready to practise today?</div>
+  <div class="stats-row">
+    <div class="stat-pill"><div class="stat-val" id="statXP">0</div><div class="stat-lbl">XP</div></div>
+    <div class="stat-pill"><div class="stat-val" id="statStreak">—</div><div class="stat-lbl">Streak</div></div>
+    <div class="stat-pill"><div class="stat-val" id="statMastered">0</div><div class="stat-lbl">Mastered</div></div>
+  </div>
+  <button class="subject-btn btn-maths" onclick="goToSubject('maths')">
+    <div class="sb-icon">🚀</div>
+    <div class="sb-info"><div class="sb-title">Maths</div><div class="sb-sub">Numbers, Shapes &amp; More</div></div>
+  </button>
+  <button class="subject-btn btn-english" onclick="goToSubject('english')">
+    <div class="sb-icon">📚</div>
+    <div class="sb-info"><div class="sb-title">English</div><div class="sb-sub">Grammar, Writing &amp; More</div></div>
+  </button>
+  <div class="theme-chip" onclick="openThemeChanger()">
+    <span id="chipEmoji">🚀</span>
+    <span id="chipName">Space Explorer</span>
+    <span class="theme-chip-muted">· Change theme</span>
+  </div>
+  <button class="admin-link" onclick="window.location.href='admin.html'">Admin access</button>
+</div>
+
+<!-- THEME CHANGER OVERLAY -->
+<div class="overlay" id="themeOverlay" onclick="overlayClick(event)">
+  <div class="overlay-sheet">
+    <div class="overlay-title">Change Theme</div>
+    <div class="overlay-sub">Pick a new look — changes instantly!</div>
+    <div class="theme-grid" id="themeGridChange"></div>
+    <button class="btn btn-primary" onclick="saveThemeChange()">Save Theme</button>
+    <button class="btn btn-ghost" style="margin-bottom:0" onclick="closeThemeChanger()">Cancel</button>
+  </div>
 </div>
 
 <script>
-var XP_LEVELS=[{name:'🌱 Seedling',min:0,max:149},{name:'🔭 Explorer',min:150,max:399},{name:'📖 Scholar',min:400,max:749},{name:'⭐ Achiever',min:750,max:1199},{name:'🏆 Champion',min:1200,max:1999},{name:'👑 Legend',min:2000,max:Infinity}];
-function getLevelIdx(xp){for(var i=XP_LEVELS.length-1;i>=0;i--){if(xp>=XP_LEVELS[i].min)return i;}return 0;}
-function lsGet(k,d){try{var v=localStorage.getItem(k);return v!==null?JSON.parse(v):d;}catch(e){return d;}}
+// ── Firebase ────────────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyCEyADr23BV0nASX_RlTfQR-Ewt0XMFYJ8",
+  authDomain: "grammar-school-flash-cards.firebaseapp.com",
+  projectId: "grammar-school-flash-cards",
+  storageBucket: "grammar-school-flash-cards.firebasestorage.app",
+  messagingSenderId: "699212561669",
+  appId: "1:699212561669:web:1fa5b71c77b178fb084b6c"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-(function(){
-  // Streak
-  var s=lsGet('prisha_streak',{day:'',count:0});
-  if(s&&s.count>0){var el=document.getElementById('homeStreak');if(el){el.textContent='🔥 '+s.count+' day streak — keep it up!';el.style.display='flex';}}
+// ── Config ──────────────────────────────────────────────────────
+const VALID_CODES = ['PREP2025'];
 
-  // XP bar
-  var xp=lsGet('prisha_xp',0);
-  if(xp>0||lsGet('prisha_ratings',null)){
-    var li=getLevelIdx(xp),lvl=XP_LEVELS[li];
-    var pct=li===XP_LEVELS.length-1?100:Math.round((xp-lvl.min)/(lvl.max-lvl.min)*100);
-    document.getElementById('homeXPWrap').style.display='block';
-    document.getElementById('homeLevel').textContent=lvl.name;
-    document.getElementById('homeXPLabel').textContent=xp+' XP';
-    setTimeout(function(){document.getElementById('homeXPFill').style.width=pct+'%';},100);
+const THEMES = {
+  space:     {name:'Space Explorer',    emoji:'🚀', bg:'#06061a', grad:'linear-gradient(145deg,#1a237e,#283593)', text:'#e8eaf6'},
+  library:   {name:'Enchanted Library', emoji:'📚', bg:'#071a0a', grad:'linear-gradient(145deg,#1b5e20,#2e7d32)', text:'#e8f5e9'},
+  ocean:     {name:'Ocean Deep',        emoji:'🌊', bg:'#01111d', grad:'linear-gradient(145deg,#003954,#006080)', text:'#e0f7fa'},
+  candy:     {name:'Candy Kingdom',     emoji:'🍭', bg:'#180a1e', grad:'linear-gradient(145deg,#6a1b9a,#8e24aa)', text:'#fce4ec'},
+  jungle:    {name:'Jungle Quest',      emoji:'🌿', bg:'#0d1a08', grad:'linear-gradient(145deg,#33691e,#558b2f)', text:'#f1f8e9'},
+  superhero: {name:'Superhero HQ',      emoji:'⚡', bg:'#0d0d0d', grad:'linear-gradient(145deg,#b71c1c,#c62828)', text:'#fff8e1'}
+};
+
+// ── State ───────────────────────────────────────────────────────
+let currentProfile = null;
+let selectedTheme  = 'space';
+let pendingTheme   = 'space';
+
+// ── Screens ─────────────────────────────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── Theme ────────────────────────────────────────────────────────
+function applyTheme(key) {
+  const t = THEMES[key] || THEMES.space;
+  document.body.style.background = t.bg;
+  document.body.style.color = t.text;
+}
+
+function buildThemeGrid(containerId, activeKey, onPick) {
+  const grid = document.getElementById(containerId);
+  grid.innerHTML = '';
+  Object.entries(THEMES).forEach(([key, t]) => {
+    const c = document.createElement('div');
+    c.className = 'theme-card' + (key === activeKey ? ' selected' : '');
+    c.style.background = t.grad;
+    c.innerHTML = `<div class="t-emoji">${t.emoji}</div><div class="t-name">${t.name}</div><div class="t-check">✓</div>`;
+    c.onclick = () => {
+      grid.querySelectorAll('.theme-card').forEach(x => x.classList.remove('selected'));
+      c.classList.add('selected');
+      onPick(key);
+    };
+    grid.appendChild(c);
+  });
+}
+
+// ── Init ─────────────────────────────────────────────────────────
+async function init() {
+  buildThemeGrid('themeGridCreate', selectedTheme, k => { selectedTheme = k; applyTheme(k); });
+
+  const userId = localStorage.getItem('gsc_userId');
+  if (userId) {
+    try {
+      const snap = await db.collection('users').doc(userId).get();
+      if (snap.exists) {
+        currentProfile = { id: userId, ...snap.data() };
+        applyTheme(currentProfile.theme || 'space');
+        renderHome();
+        showScreen('screenHome');
+        db.collection('users').doc(userId).update({
+          lastActive: firebase.firestore.FieldValue.serverTimestamp()
+        }).catch(() => {});
+        return;
+      }
+    } catch(e) { console.warn('Firebase load failed', e); }
   }
+  showScreen('screenWelcome');
+}
 
-  // Stats row
-  var ratings=lsGet('prisha_ratings',{});
-  var rKeys=Object.keys(ratings),totalRated=rKeys.length;
-  var badges=lsGet('prisha_badges',[]);
-  if(totalRated>0||badges.length>0){
-    var mastered=Object.values(ratings).filter(function(v){return v==='got';}).length;
-    document.getElementById('homeStats').style.display='flex';
-    document.getElementById('hStatRated').textContent=totalRated;
-    document.getElementById('hStatMastered').textContent=mastered;
-    document.getElementById('hStatBadges').textContent=badges.length;
+// ── Invite validation ────────────────────────────────────────────
+function validateInvite() {
+  const code = (document.getElementById('inviteInput').value || '').trim().toUpperCase();
+  const err  = document.getElementById('inviteErr');
+  if (!code) { err.textContent = 'Please enter your invite code.'; return; }
+  if (!VALID_CODES.includes(code)) {
+    err.textContent = '❌ Invalid code — ask your tutor!';
+    return;
   }
+  err.textContent = '';
+  buildThemeGrid('themeGridCreate', selectedTheme, k => { selectedTheme = k; applyTheme(k); });
+  showScreen('screenProfile');
+  setTimeout(() => document.getElementById('nameInput').focus(), 300);
+}
 
-  // Focus areas (hard-rated topics)
-  var ALL_BADGES=[{id:'first_flip',icon:'🚀',name:'First Launch'},{id:'got5',icon:'✅',name:'Quick Learner'},{id:'streak3',icon:'🔥',name:'Streak Starter'},{id:'streak7',icon:'💫',name:'Streak Master'},{id:'topic_ace',icon:'🎯',name:'Topic Ace'},{id:'five_topics',icon:'🌟',name:'Explorer'},{id:'cards50',icon:'📚',name:'Card Champion'},{id:'cards20got',icon:'💪',name:'Mastery Master'},{id:'quiz10',icon:'🧠',name:'Quiz Whiz'},{id:'level_scholar',icon:'⭐',name:'Scholar'},{id:'level_champion',icon:'🏆',name:'Champion'},{id:'first_flip',icon:'📖',name:'First Page'},];
-  var topicHard={};
-  rKeys.forEach(function(k){if(ratings[k]==='hard'){var parts=k.split('||');var t=parts[0];if(!topicHard[t])topicHard[t]=0;topicHard[t]++;}});
-  var weakTopics=Object.keys(topicHard).sort(function(a,b){return topicHard[b]-topicHard[a];}).slice(0,5);
-  if(weakTopics.length>0){
-    var fc=document.getElementById('homeFocus'),wc=document.getElementById('homeWeakChips');
-    fc.style.display='block';wc.innerHTML='';
-    weakTopics.forEach(function(t){var chip=document.createElement('span');chip.className='home-weak-chip';chip.textContent=t+' ('+topicHard[t]+' tricky)';wc.appendChild(chip);});
+// ── Profile creation ─────────────────────────────────────────────
+async function createProfile() {
+  const name = (document.getElementById('nameInput').value || '').trim();
+  const err  = document.getElementById('profileErr');
+  if (!name)           { err.textContent = 'Please enter your name!'; return; }
+  if (name.length < 2) { err.textContent = 'Name needs at least 2 letters.'; return; }
+
+  const btn = document.getElementById('createBtn');
+  btn.disabled = true;
+  err.textContent = 'Creating your profile...';
+
+  const userId = 'u_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8);
+  const profile = {
+    name: name,
+    theme: selectedTheme,
+    inviteCode: (document.getElementById('inviteInput').value || '').trim().toUpperCase(),
+    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+    lastActive: firebase.firestore.FieldValue.serverTimestamp(),
+    xp: 0,
+    streak: 0,
+    badges: [],
+    ratings: {}
+  };
+
+  try {
+    await db.collection('users').doc(userId).set(profile);
+    localStorage.setItem('gsc_userId', userId);
+    localStorage.setItem('gsc_name', name);
+    currentProfile = { id: userId, ...profile };
+    applyTheme(selectedTheme);
+    renderHome();
+    showScreen('screenHome');
+  } catch(e) {
+    err.textContent = '⚠️ Could not save — check your connection and try again.';
+    btn.disabled = false;
+    console.error(e);
   }
+}
 
-  // Badges earned
-  if(badges.length>0){
-    var bw=document.getElementById('homeBadgesWrap'),bc=document.getElementById('homeBadgeChips');
-    bw.style.display='block';bc.innerHTML='';
-    badges.slice(-6).forEach(function(id){
-      var def=ALL_BADGES.find(function(x){return x.id===id;});
-      if(def){var chip=document.createElement('span');chip.className='home-badge-chip';chip.textContent=def.icon+' '+def.name;bc.appendChild(chip);}
-    });
+// ── Home ─────────────────────────────────────────────────────────
+function renderHome() {
+  const p = currentProfile;
+  const t = THEMES[p.theme] || THEMES.space;
+  document.getElementById('homeGreeting').textContent = `Hi, ${p.name}! ${t.emoji}`;
+
+  // Stats from localStorage (Firestore sync comes in next step)
+  const xp       = parseInt(localStorage.getItem('prisha_xp') || '0') || p.xp || 0;
+  const streak   = parseInt(localStorage.getItem('prisha_streak') || '0') || p.streak || 0;
+  const ratings  = JSON.parse(localStorage.getItem('prisha_ratings') || '{}');
+  const mastered = Object.values(ratings).filter(v => v === 'got').length;
+
+  document.getElementById('statXP').textContent      = xp;
+  document.getElementById('statStreak').textContent  = streak > 0 ? streak + ' 🔥' : '—';
+  document.getElementById('statMastered').textContent = mastered;
+
+  document.getElementById('chipEmoji').textContent = t.emoji;
+  document.getElementById('chipName').textContent  = t.name;
+}
+
+function goToSubject(subject) {
+  if (currentProfile) {
+    localStorage.setItem('gsc_profile', JSON.stringify({
+      id: currentProfile.id, name: currentProfile.name, theme: currentProfile.theme
+    }));
   }
-})();
+  window.location.href = subject === 'maths' ? 'Maths_Flashcards.html' : 'English_Flashcards.html';
+}
 
-// Background animations
-var bg=document.getElementById('bgLayer');
-for(var i=0;i<100;i++){var s=document.createElement('div');s.className='star';var sz=(Math.random()*2.5+0.8).toFixed(1);s.style.cssText='width:'+sz+'px;height:'+sz+'px;top:'+(Math.random()*100).toFixed(1)+'%;left:'+(Math.random()*100).toFixed(1)+'%;animation-duration:'+(Math.random()*3+1.5).toFixed(1)+'s;animation-delay:'+(Math.random()*5).toFixed(1)+'s;';bg.appendChild(s);}
-function shootingStar(){var el=document.createElement('div');el.className='shoot';el.style.cssText='width:'+(60+Math.random()*80).toFixed(0)+'px;top:'+(Math.random()*60).toFixed(1)+'%;left:'+(Math.random()*60).toFixed(1)+'%;';bg.appendChild(el);setTimeout(function(){if(el.parentNode)el.parentNode.removeChild(el);},800);setTimeout(shootingStar,3500+Math.random()*6000);}
-setTimeout(shootingStar,2000);
-var pool=['⭐','🦄','🌈','🎈','🚀','🦋','🌺','🎮','🐉','🏆','✨','🎯','🐸','🦁','🐬'];
-pool.forEach(function(em,i){var el=document.createElement('div');el.className='floaty';el.textContent=em;var dur=(14+Math.random()*10).toFixed(1);el.style.cssText='left:'+((i/pool.length*100)+Math.random()*4).toFixed(1)+'%;font-size:'+(1.4+Math.random()*0.8).toFixed(1)+'em;animation-duration:'+dur+'s;animation-delay:'+(Math.random()*parseFloat(dur)).toFixed(1)+'s;';bg.appendChild(el);});
+// ── Theme changer ─────────────────────────────────────────────────
+function openThemeChanger() {
+  pendingTheme = currentProfile.theme;
+  buildThemeGrid('themeGridChange', pendingTheme, k => { pendingTheme = k; });
+  document.getElementById('themeOverlay').classList.add('open');
+}
+function closeThemeChanger() {
+  document.getElementById('themeOverlay').classList.remove('open');
+}
+function overlayClick(e) {
+  if (e.target === document.getElementById('themeOverlay')) closeThemeChanger();
+}
+async function saveThemeChange() {
+  currentProfile.theme = pendingTheme;
+  const t = THEMES[pendingTheme] || THEMES.space;
+  applyTheme(pendingTheme);
+  document.getElementById('chipEmoji').textContent = t.emoji;
+  document.getElementById('chipName').textContent  = t.name;
+  document.getElementById('homeGreeting').textContent = `Hi, ${currentProfile.name}! ${t.emoji}`;
+  closeThemeChanger();
+  try {
+    await db.collection('users').doc(currentProfile.id).update({ theme: pendingTheme });
+  } catch(e) { console.warn('Theme save failed', e); }
+}
+
+// ── Boot ──────────────────────────────────────────────────────────
+init();
 </script>
 </body>
 </html>
