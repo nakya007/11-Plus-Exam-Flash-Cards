@@ -436,7 +436,7 @@ function saveProfileEntry(id, name, themeMaths, themeEnglish) {
 function renderSavedProfilesOnWelcome() {
   const profiles = getSavedProfiles();
   const btn = document.getElementById('btnImBack');
-  if (btn) btn.style.display = profiles.length ? '' : 'none';
+  if (btn) btn.style.display = ''; // always visible — any user on any device should be able to sign in
 }
 
 // Called after PIN verified — actually loads the profile
