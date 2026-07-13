@@ -298,7 +298,7 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
 <!-- ══ TOPIC VIEW ══ -->
 <div class="page topic-view" id="topicView">
   <div class="hero-header">
-    <span class="hero-badge">🚀</span>
+    <span class="hero-badge" id="heroBadge">🧑‍🚀</span>
     <h1 class="hero-title">Maths Flashcards</h1>
     <p class="hero-sub" id="heroSubMaths">🌌 Space Explorer · 11+ Prep</p>
     <div class="streak-badge" id="streakBadge"></div>
@@ -548,9 +548,20 @@ function showBadges(){
 function hideBadges(){document.getElementById('badgesModal').classList.remove('bm-show');}
 
 /* ── Mascot ── */
-var MASCOT_GOT=['Stellar! ⭐','Perfect trajectory! 🎯','Houston, we have a genius! 🏆','Out of this world! 🌌','Brilliant! You\'re a star! 🚀'];
-var MASCOT_HARD=['Even astronauts need extra training! 💪','We\'ll get there together! 🛸','Keep pushing — space wasn\'t built in a day! 🚀','Every mistake is a lesson! 🌟'];
-var MASCOT_START=['Mission launched! Let\'s go! 🚀','Ready for lift-off! 🌌','Initiating study sequence! 🛸'];
+const MASCOT_SETS={
+  space:    {mascot:'🧑‍🚀',got:['Stellar! ⭐','Houston, we have a genius! 🏆','Out of this world! 🌌','Perfect trajectory! 🎯'],hard:['Even astronauts need extra training! 💪','Keep pushing — space wasn\'t built in a day! 🚀','Every mistake is a lesson! 🌟'],start:['Mission launched! 🚀','Ready for lift-off! 🌌','Initiating study sequence! 🛸']},
+  library:  {mascot:'🦉',got:['Brilliant! The owl is proud! 🦉','Splendid! 📖','The library glows! 🌟','Magnificently done! ✨'],hard:['Even scholars need practice! 💪','The owl believes in you! 🦉','Keep turning the pages! 📚'],start:['The library awaits! 📖','Wisdom begins here! 🦉','Open the book and begin! ✨']},
+  ocean:    {mascot:'🐬',got:['Splash-tastic! 🐬','Riding the wave! 🌊','Deep knowledge! 🌊','You\'re on a roll! 🏄'],hard:['Even dolphins practise every day! 💙','Dive deeper — you\'ll get it! 🌊','Keep swimming! 🐬'],start:['Dive in! 🌊','Time to make a splash! 🐬','The ocean awaits! 🌊']},
+  candy:    {mascot:'🧚',got:['Sweet! 🍭','Deliciously correct! 🍬','Sprinkle-tastic! ✨','Sugar-rush smart! 🍭'],hard:['Every sweet takes work! 💪','The fairy believes in you! 🧚','Keep going — candy awaits! 🍬'],start:['Let\'s make magic! 🧚','The candy kingdom is ready! 🍭','Sprinkle some brilliance! ✨']},
+  jungle:   {mascot:'🐯',got:['Roar-some! 🐯','Jungle genius! 🌿','Wild and brilliant! 🦁','Claws-ome! 🐯'],hard:['Even tigers miss sometimes! 💪','The jungle rewards persistence! 🌿','Keep prowling! 🐯'],start:['Into the jungle! 🌿','Unleash your inner tiger! 🐯','The wild awaits! 🦁']},
+  superhero:{mascot:'🦸',got:['Heroic! ⚡','Superb, hero! 🦸','Great power, great knowledge! 💥','Outstanding! 🌟'],hard:['Every hero has setbacks! 💪','Your power is growing! ⚡','Heroes never give up! 🦸'],start:['Suit up! ⚡','Mission begins! 🦸','Time to save the day! 💥']},
+  dragon:   {mascot:'🐉',got:['Scorching answer! 🔥','Dragon-level genius! 🐉','Fire! 🔥 Brilliant!','The hoard grows! 💰'],hard:['Even dragons learn to fly! 💪','The flame grows stronger! 🔥','Keep breathing fire! 🐉'],start:['The dragon awakens! 🐉','Breathe fire into your studies! 🔥','Quest begins! ⚔️']},
+  crystal:  {mascot:'🔮',got:['Crystal clear! 💎','Dazzling! 🔮','Brilliantly faceted! 💎','The crystal glows! 🔮'],hard:['Even gems need polishing! 💎','The crystal sees your potential! 🔮','Keep shining! ✨'],start:['The crystal magic begins! 🔮','Unlock your power! 💎','Shine bright! ✨']},
+  neon:     {mascot:'🤖',got:['Error rate: 0%! 🤖','System optimal! ⚡','Data processed! 💡','Upgrade complete! 🌆'],hard:['Recalibrating... 🔄','Every glitch is fixable! 🤖','System learning... ⚡'],start:['Booting up! 🤖','Initialising genius mode! 💡','System online! 🌆']},
+};
+var MASCOT_GOT=MASCOT_SETS.space.got;
+var MASCOT_HARD=MASCOT_SETS.space.hard;
+var MASCOT_START=MASCOT_SETS.space.start;
 function _pick(arr){return arr[Math.floor(Math.random()*arr.length)];}
 function mascotSay(msg,happy){
   var bubble=document.getElementById('mascotBubble'),em=document.getElementById('mascotEmoji');
@@ -862,6 +873,16 @@ if(localStorage.getItem('gsc_admin_preview')==='1')document.body.classList.add('
       const uName=p.name||'';
       heroSub.textContent=tm.emoji+' '+tm.name+(uName?' · '+uName+"'s 11+ Prep":' · 11+ Prep');
     }
+    const ms=MASCOT_SETS[key]||MASCOT_SETS.space;
+    MASCOT_GOT=ms.got; MASCOT_HARD=ms.hard; MASCOT_START=ms.start;
+    const mascotEl=document.getElementById('mascotEmoji');
+    const heroBadgeEl=document.getElementById('heroBadge');
+    const summaryMascotEl=document.getElementById('summaryMascot');
+    if(mascotEl) mascotEl.textContent=ms.mascot;
+    if(heroBadgeEl) heroBadgeEl.textContent=ms.mascot;
+    if(summaryMascotEl) summaryMascotEl.textContent=ms.mascot;
+    const mascotBubble=document.getElementById('mascotBubble');
+    if(mascotBubble) mascotBubble.textContent=ms.start[Math.floor(Math.random()*ms.start.length)];
   }catch(e){ document.body.classList.add('theme-space'); _setTV('space'); }
 })();
 
