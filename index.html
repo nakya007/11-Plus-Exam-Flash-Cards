@@ -334,6 +334,7 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
       <div class="pin-dot" id="vpd2"></div><div class="pin-dot" id="vpd3"></div>
     </div>
     <div class="pin-grid" id="verifyPinGrid"></div>
+    <button id="pinVerifyConfirmBtn" disabled onclick="submitVerifyPin()" style="margin-top:16px;width:100%;padding:14px;border-radius:14px;border:none;background:#7c3aed;color:#fff;font-size:16px;font-weight:900;cursor:pointer;font-family:'Nunito',sans-serif;opacity:0.4;transition:opacity 0.2s;">✅ OK</button>
     <div class="err" id="verifyPinErr" style="margin-top:14px;"></div>
     <button class="back-link" style="margin-top:10px;" onclick="closeVerifyPin()">← Cancel</button>
   </div>
@@ -454,24 +455,38 @@ function selectProfile(id, name) {
   document.getElementById('pinVerifyName').textContent = 'Enter ' + (name || 'your') + "'s PIN";
   document.getElementById('verifyPinErr').textContent = '';
   if (!_verifyPad) {
-    _verifyPad = buildPinPad('verifyPinGrid', 'vpd', async (pin) => {
-      document.getElementById('verifyPinErr').textContent = 'Checking…';
-      try {
-        const snap = await db.collection('users').doc(_verifyTargetId).get();
-        if (snap.exists && snap.data().pin === pin) {
-          document.getElementById('pinVerifyOverlay').classList.remove('open');
-          await _loadProfile(_verifyTargetId);
-        } else {
-          document.getElementById('verifyPinErr').textContent = '❌ Wrong PIN — try again';
-          _verifyPad.shake();
-        }
-      } catch(e) {
-        document.getElementById('verifyPinErr').textContent = '⚠️ Connection error — try again';
-        _verifyPad.shake();
-      }
+    _verifyPad = buildPinPad('verifyPinGrid', 'vpd', null, (digits) => {
+      const btn = document.getElementById('pinVerifyConfirmBtn');
+      btn.disabled = digits.length < 4;
+      btn.style.opacity = digits.length < 4 ? '0.4' : '1';
     });
-  } else { _verifyPad.reset(); document.getElementById('verifyPinErr').textContent = ''; }
+  } else {
+    _verifyPad.reset();
+    document.getElementById('verifyPinErr').textContent = '';
+    const btn = document.getElementById('pinVerifyConfirmBtn');
+    btn.disabled = true; btn.style.opacity = '0.4';
+  }
   document.getElementById('pinVerifyOverlay').classList.add('open');
+}
+async function submitVerifyPin() {
+  const pin = _verifyPad.value;
+  const errEl = document.getElementById('verifyPinErr');
+  errEl.textContent = 'Checking…';
+  try {
+    const snap = await db.collection('users').doc(_verifyTargetId).get();
+    if (snap.exists && snap.data().pin === pin) {
+      document.getElementById('pinVerifyOverlay').classList.remove('open');
+      await _loadProfile(_verifyTargetId);
+    } else {
+      errEl.textContent = '❌ Wrong PIN — try again';
+      _verifyPad.shake();
+      const btn = document.getElementById('pinVerifyConfirmBtn');
+      btn.disabled = true; btn.style.opacity = '0.4';
+    }
+  } catch(e) {
+    errEl.textContent = '⚠️ Connection error — try again';
+    _verifyPad.shake();
+  }
 }
 function closeVerifyPin() {
   document.getElementById('pinVerifyOverlay').classList.remove('open');
@@ -494,12 +509,11 @@ async function switchProfile() {
   }
   const list = document.getElementById('profilePickList');
   list.innerHTML = '';
-  valid.forEach(p => {
+  valid.forEach((p, i) => {
     const tm = THEMES[p.themeMaths] || THEMES.space;
-    const te = THEMES[p.themeEnglish] || THEMES.library;
     const card = document.createElement('div');
     card.className = 'profile-pick-card';
-    card.innerHTML = '<div class="profile-pick-avatar">' + tm.emoji + '</div><div><div class="profile-pick-name">' + p.name + '</div><div class="profile-pick-sub">' + tm.name + ' · ' + te.name + '</div></div>';
+    card.innerHTML = '<div class="profile-pick-avatar">' + tm.emoji + '</div><div><div class="profile-pick-name">Profile ' + (i + 1) + '</div><div class="profile-pick-sub">Tap to sign in with PIN</div></div>';
     card.onclick = () => selectProfile(p.id, p.name);
     list.appendChild(card);
   });
