@@ -116,7 +116,9 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 .portal-title{font-size:32px;font-weight:900;text-align:center;line-height:1.15;margin-bottom:6px;color:#fff;position:relative;z-index:2;}
 .portal-sub{font-size:13px;color:#a78bfa;text-align:center;margin-bottom:22px;letter-spacing:0.3px;position:relative;z-index:2;}
 .portal-subjects{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%;margin-bottom:18px;position:relative;z-index:2;}
-.portal-subj{border-radius:16px;padding:12px 8px;text-align:center;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);}
+.portal-subj{border-radius:16px;padding:12px 8px;text-align:center;border:1.5px solid rgba(255,255,255,0.1);background:rgba(255,255,255,0.05);cursor:pointer;transition:transform 0.18s cubic-bezier(0.34,1.56,0.64,1),background 0.15s,border-color 0.15s;}
+.portal-subj:hover{transform:translateY(-4px) scale(1.03);}
+.portal-subj:active{transform:scale(0.95);}
 .portal-subj-icon{font-size:26px;display:block;margin-bottom:4px;}
 .portal-subj-name{font-size:13px;font-weight:800;color:#fff;}
 .portal-subj-desc{font-size:10px;color:rgba(255,255,255,0.4);margin-top:2px;}
@@ -125,8 +127,11 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 .btn-portal:active{transform:scale(0.97);}
 .btn-signin-link{background:none;border:1px solid rgba(255,255,255,0.14);border-radius:14px;color:rgba(255,255,255,0.5);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;padding:10px 18px;transition:color 0.15s,border-color 0.15s;position:relative;z-index:2;width:100%;margin-top:4px;}
 .btn-signin-link:hover{color:rgba(255,255,255,0.75);border-color:rgba(255,255,255,0.28);}
-.btn-admin-link{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.25);border-radius:14px;color:rgba(255,255,255,0.6);font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;padding:9px 20px;position:relative;z-index:2;margin-top:10px;}
-.btn-admin-link:hover{color:rgba(255,255,255,0.4);}
+.btn:active,.btn-primary:active{transform:scale(0.96);transition:transform 0.08s;}
+.home-action-btn:active{transform:scale(0.96);transition:transform 0.08s;}
+.saved-profile-btn:active{transform:scale(0.97);transition:transform 0.08s;}
+.ch-badge.done{animation:chDone 0.45s cubic-bezier(0.34,1.56,0.64,1);}
+@keyframes chDone{0%{transform:scale(0.92);}55%{transform:scale(1.08);}100%{transform:scale(1);}}
 .portal-stars{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
 .pstar{position:absolute;width:3px;height:3px;border-radius:50%;background:#c4b5fd;animation:twinkle 2.5s ease-in-out infinite;}
 @keyframes twinkle{0%,100%{opacity:0.7;transform:scale(1);}50%{opacity:0.1;transform:scale(0.4);}}
@@ -168,17 +173,17 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
   <div class="portal-rings" aria-hidden="true">
     <div class="portal-ring pr1"></div><div class="portal-ring pr2"></div><div class="portal-ring pr3"></div>
   </div>
-  <div class="portal-badge">11+ Exam Flash Cards</div>
+  <div class="portal-badge" onclick="handleAdminTap()" style="cursor:default;-webkit-tap-highlight-color:transparent;">11+ Exam Flash Cards</div>
   <div class="portal-orb">🎓</div>
   <div class="portal-title">Grammar<br>School Prep</div>
   <div class="portal-sub">Your learning adventure awaits ✨</div>
   <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.25);letter-spacing:2px;align-self:flex-start;margin-bottom:6px;">STUDY</div>
   <div class="portal-subjects">
-    <div class="portal-subj" style="border-color:rgba(96,165,250,0.3);background:rgba(59,130,246,0.08);">
-      <span class="portal-subj-icon">🎯</span><div class="portal-subj-name">Maths</div><div class="portal-subj-desc">Numbers &amp; Shapes</div>
+    <div class="portal-subj" onclick="showScreen('screenSignIn')" style="border-color:rgba(96,165,250,0.35);background:rgba(59,130,246,0.1);" title="Sign in to study Maths">
+      <span class="portal-subj-icon">🎯</span><div class="portal-subj-name">Maths</div><div class="portal-subj-desc">Tap to start →</div>
     </div>
-    <div class="portal-subj" style="border-color:rgba(52,211,153,0.3);background:rgba(16,185,129,0.08);">
-      <span class="portal-subj-icon">📚</span><div class="portal-subj-name">English</div><div class="portal-subj-desc">Grammar &amp; Writing</div>
+    <div class="portal-subj" onclick="showScreen('screenSignIn')" style="border-color:rgba(52,211,153,0.35);background:rgba(16,185,129,0.1);" title="Sign in to study English">
+      <span class="portal-subj-icon">📚</span><div class="portal-subj-name">English</div><div class="portal-subj-desc">Tap to start →</div>
     </div>
   </div>
   <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.25);letter-spacing:2px;align-self:flex-start;margin:14px 0 8px;">SIGN IN</div>
@@ -194,11 +199,11 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
       <div style="font-size:10px;color:rgba(196,181,253,0.5);text-align:center;">Start my journey</div>
     </button>
   </div>
-  <button class="btn-admin-link" onclick="window.location.href='admin.html'" style="margin-top:12px;">Admin Login 🔐</button>
 </div>
 
 <!-- INVITE CODE (new profile only) -->
 <div class="screen" id="screenInvite">
+  <div class="portal-stars" id="inviteStars" aria-hidden="true"></div>
   <div class="logo">🔑</div>
   <div class="screen-title">Enter Invite Code</div>
   <div class="screen-sub">Ask your tutor for your code</div>
@@ -236,6 +241,7 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 
 <!-- SIGN IN (new device / returning) -->
 <div class="screen" id="screenSignIn">
+  <div class="portal-stars" id="signinStars" aria-hidden="true"></div>
   <div class="logo">🔐</div>
   <div class="screen-title">Welcome Back!</div>
   <div class="screen-sub">Enter your name and 4-digit PIN</div>
@@ -384,6 +390,9 @@ const THEMES = {
   candy:     {name:'Candy Kingdom',     emoji:'🍭', bodyBg:'linear-gradient(160deg,#4a044e 0%,#1a0828 55%,#0d0415 100%)',             tint:'rgba(168,85,247,0.30)', glow:'#e879f9', border:'rgba(232,121,249,0.4)',text:'#fce4ec', accent:'#e879f9', accentGlow:'rgba(232,121,249,0.35)', accentBorder:'rgba(232,121,249,0.45)', accentText:'#f5d0fe', accentDark:'rgba(126,34,206,0.22)',   xp:'linear-gradient(90deg,#7e22ce,#e879f9)'},
   jungle:    {name:'Jungle Quest',      emoji:'🌿', bodyBg:'linear-gradient(180deg,#14532d 0%,#052e16 55%,#021207 100%)',             tint:'rgba(22,163,74,0.30)',  glow:'#4ade80', border:'rgba(74,222,128,0.4)', text:'#dcfce7', accent:'#4ade80', accentGlow:'rgba(74,222,128,0.35)',  accentBorder:'rgba(74,222,128,0.45)',  accentText:'#bbf7d0', accentDark:'rgba(21,128,61,0.22)',    xp:'linear-gradient(90deg,#15803d,#4ade80)'},
   superhero: {name:'Superhero HQ',      emoji:'⚡', bodyBg:'linear-gradient(160deg,#0d0000 0%,#1a0505 45%,#080000 100%)',             tint:'rgba(220,38,38,0.30)',  glow:'#f87171', border:'rgba(248,113,113,0.4)',text:'#fff8e1', accent:'#f87171', accentGlow:'rgba(248,113,113,0.35)', accentBorder:'rgba(248,113,113,0.45)', accentText:'#fecaca', accentDark:'rgba(153,27,27,0.22)',    xp:'linear-gradient(90deg,#991b1b,#f87171)'},
+  dragon:    {name:"Dragon's Keep",     emoji:'🐉', bodyBg:'linear-gradient(180deg,#1a0500 0%,#2d0a00 40%,#0a0200 100%)',             tint:'rgba(154,52,18,0.30)',  glow:'#fb923c', border:'rgba(251,146,60,0.4)', text:'#fed7aa', accent:'#fb923c', accentGlow:'rgba(251,146,60,0.35)',  accentBorder:'rgba(251,146,60,0.45)',  accentText:'#fed7aa', accentDark:'rgba(154,52,18,0.22)',   xp:'linear-gradient(90deg,#9a3412,#fb923c)'},
+  crystal:   {name:'Crystal Cavern',    emoji:'💎', bodyBg:'linear-gradient(160deg,#0f0720 0%,#1a0d35 45%,#06030f 100%)',             tint:'rgba(109,40,217,0.30)', glow:'#a78bfa', border:'rgba(167,139,250,0.4)',text:'#e9d5ff', accent:'#a78bfa', accentGlow:'rgba(167,139,250,0.35)', accentBorder:'rgba(167,139,250,0.45)', accentText:'#e9d5ff', accentDark:'rgba(109,40,217,0.22)',   xp:'linear-gradient(90deg,#6d28d9,#a78bfa)'},
+  neon:      {name:'Neon City',         emoji:'🌆', bodyBg:'linear-gradient(180deg,#000814 0%,#000d1a 50%,#000 100%)',                tint:'rgba(134,25,143,0.30)', glow:'#f0abfc', border:'rgba(240,171,252,0.4)',text:'#f0abfc', accent:'#f0abfc', accentGlow:'rgba(240,171,252,0.35)', accentBorder:'rgba(240,171,252,0.45)', accentText:'#f0abfc', accentDark:'rgba(134,25,143,0.22)',   xp:'linear-gradient(90deg,#86198f,#f0abfc)'},
 };
 
 let currentProfile = null, selectedMaths = 'space', selectedEnglish = 'library';
@@ -694,6 +703,13 @@ function enterAdminPreview() {
 }
 function exitAdminPreview() { localStorage.removeItem('gsc_admin_preview'); window.location.href='admin.html'; }
 
+let _atc=0,_att;
+function handleAdminTap(){
+  _atc++; clearTimeout(_att);
+  _att=setTimeout(()=>_atc=0, 2500);
+  if(_atc>=7){ _atc=0; window.location.href='admin.html'; }
+}
+
 function _goWelcome() {
   try { renderSavedProfilesOnWelcome(); } catch(e) { console.warn('renderSaved failed', e); }
   showScreen('screenWelcome');
@@ -706,6 +722,8 @@ async function init() {
   try {
     try { spawnStars('portalStars'); } catch(e) {}
     try { spawnStars('profileStars'); } catch(e) {}
+    try { spawnStars('inviteStars'); } catch(e) {}
+    try { spawnStars('signinStars'); } catch(e) {}
     try { buildThemeGrid('themeGridMaths',   selectedMaths,   k => { selectedMaths=k; applyTheme(k); }); } catch(e) {}
     try { buildThemeGrid('themeGridEnglish', selectedEnglish, k => { selectedEnglish=k; }); } catch(e) {}
     try { initSignInPad(); } catch(e) { console.warn('initSignInPad failed', e); }
