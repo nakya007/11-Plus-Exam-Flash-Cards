@@ -770,9 +770,11 @@ function renderHome() {
   const p = currentProfile;
   const tm = THEMES[p.themeMaths]||THEMES.space, te = THEMES[p.themeEnglish]||THEMES.library;
   document.getElementById('homeGreeting').textContent = 'Hi, '+p.name+'! 👋';
-  const xp      = parseInt(localStorage.getItem('prisha_xp')||'0')||p.xp||0;
-  const streak  = parseInt(localStorage.getItem('prisha_streak')||'0')||p.streak||0;
-  const ratings = JSON.parse(localStorage.getItem('prisha_ratings')||'{}');
+  const _uid = p.id || localStorage.getItem('gsc_userId') || 'shared';
+  const xp      = parseInt(localStorage.getItem('prisha_xp_'+_uid)||'0')||p.xp||0;
+  const _streakObj = JSON.parse(localStorage.getItem('prisha_streak_'+_uid)||'{"count":0}');
+  const streak  = (_streakObj.count||0) || p.streak || 0;
+  const ratings = JSON.parse(localStorage.getItem('prisha_ratings_'+_uid)||'{}');
   const mastered = Object.values(ratings).filter(v=>v==='got').length;
   document.getElementById('statXP').textContent       = xp;
   document.getElementById('statStreak').textContent   = streak>0 ? streak+' 🔥' : '—';
