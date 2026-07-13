@@ -213,6 +213,16 @@ body{font-family:'Nunito',sans-serif;background:#0a0a1a;color:#e8eaf6;min-height
 </div>
 
 <script>
+// ── Helpers ─────────────────────────────────────────────────────
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function formatDate(d) {
+  if (!d) return '—';
+  const dt = d instanceof Date ? d : new Date(d);
+  if (isNaN(dt)) return '—';
+  return dt.toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' });
+}
 // ── Firebase ────────────────────────────────────────────────────
 const firebaseConfig = {
   apiKey: "AIzaSyCEyADr23BV0nASX_RlTfQR-Ewt0XMFYJ8",
