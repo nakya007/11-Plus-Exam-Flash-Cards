@@ -352,7 +352,6 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
     <div class="quiz-opts" id="quizOpts"></div>
   </div>
   <div class="card-progress" id="cardProgress"></div>
-  <div class="progress-track"><div class="progress-bar" id="progressBar"></div></div>
   <div class="nav-area">
     <button class="nav-btn" id="prevBtn" onclick="navigate(-1)">← Previous</button>
     <button class="nav-btn" id="nextBtn" onclick="navigate(1)">Next →</button>
@@ -536,15 +535,15 @@ if(localStorage.getItem('gsc_admin_preview')==='1')document.body.classList.add('
 // ── Apply English theme from profile ─────────────────────────────
 (function applyEnglishTheme(){
   const MINI_THEMES={
-    space:    {xp:'linear-gradient(90deg,#4338ca,#818cf8)', a:'#818cf8',ag:'rgba(129,140,248,0.35)',ab:'rgba(129,140,248,0.45)',at:'#c7d2fe',ad:'rgba(67,56,202,0.22)'},
-    library:  {xp:'linear-gradient(90deg,#b45309,#fbbf24)', a:'#fbbf24',ag:'rgba(251,191,36,0.35)', ab:'rgba(251,191,36,0.45)', at:'#fde68a',ad:'rgba(146,64,14,0.22)'},
-    ocean:    {xp:'linear-gradient(90deg,#0e7490,#22d3ee)', a:'#22d3ee',ag:'rgba(34,211,238,0.35)', ab:'rgba(34,211,238,0.45)', at:'#a5f3fc',ad:'rgba(14,116,144,0.22)'},
-    candy:    {xp:'linear-gradient(90deg,#7e22ce,#e879f9)', a:'#e879f9',ag:'rgba(232,121,249,0.35)',ab:'rgba(232,121,249,0.45)',at:'#f5d0fe',ad:'rgba(126,34,206,0.22)'},
-    jungle:   {xp:'linear-gradient(90deg,#15803d,#4ade80)', a:'#4ade80',ag:'rgba(74,222,128,0.35)', ab:'rgba(74,222,128,0.45)', at:'#bbf7d0',ad:'rgba(21,128,61,0.22)'},
-    superhero:{xp:'linear-gradient(90deg,#991b1b,#f87171)', a:'#f87171',ag:'rgba(248,113,113,0.35)',ab:'rgba(248,113,113,0.45)',at:'#fecaca',ad:'rgba(153,27,27,0.22)'},
-    dragon:   {xp:'linear-gradient(90deg,#9a3412,#fb923c)', a:'#fb923c',ag:'rgba(251,146,60,0.35)', ab:'rgba(251,146,60,0.45)', at:'#fed7aa',ad:'rgba(154,52,18,0.22)'},
-    crystal:  {xp:'linear-gradient(90deg,#6d28d9,#a78bfa)', a:'#a78bfa',ag:'rgba(167,139,250,0.35)',ab:'rgba(167,139,250,0.45)',at:'#e9d5ff',ad:'rgba(109,40,217,0.22)'},
-    neon:     {xp:'linear-gradient(90deg,#86198f,#f0abfc)', a:'#f0abfc',ag:'rgba(240,171,252,0.35)',ab:'rgba(240,171,252,0.45)',at:'#f0abfc',ad:'rgba(134,25,143,0.22)'},
+    space:    {name:'Space Explorer',  emoji:'🚀', xp:'linear-gradient(90deg,#4338ca,#818cf8)', a:'#818cf8',ag:'rgba(129,140,248,0.35)',ab:'rgba(129,140,248,0.45)',at:'#c7d2fe',ad:'rgba(67,56,202,0.22)'},
+    library:  {name:'Enchanted Library',emoji:'📚', xp:'linear-gradient(90deg,#b45309,#fbbf24)', a:'#fbbf24',ag:'rgba(251,191,36,0.35)', ab:'rgba(251,191,36,0.45)', at:'#fde68a',ad:'rgba(146,64,14,0.22)'},
+    ocean:    {name:'Ocean Deep',      emoji:'🌊', xp:'linear-gradient(90deg,#0e7490,#22d3ee)', a:'#22d3ee',ag:'rgba(34,211,238,0.35)', ab:'rgba(34,211,238,0.45)', at:'#a5f3fc',ad:'rgba(14,116,144,0.22)'},
+    candy:    {name:'Candy Kingdom',   emoji:'🍭', xp:'linear-gradient(90deg,#7e22ce,#e879f9)', a:'#e879f9',ag:'rgba(232,121,249,0.35)',ab:'rgba(232,121,249,0.45)',at:'#f5d0fe',ad:'rgba(126,34,206,0.22)'},
+    jungle:   {name:'Jungle Quest',    emoji:'🌿', xp:'linear-gradient(90deg,#15803d,#4ade80)', a:'#4ade80',ag:'rgba(74,222,128,0.35)', ab:'rgba(74,222,128,0.45)', at:'#bbf7d0',ad:'rgba(21,128,61,0.22)'},
+    superhero:{name:'Superhero HQ',    emoji:'⚡', xp:'linear-gradient(90deg,#991b1b,#f87171)', a:'#f87171',ag:'rgba(248,113,113,0.35)',ab:'rgba(248,113,113,0.45)',at:'#fecaca',ad:'rgba(153,27,27,0.22)'},
+    dragon:   {name:"Dragon's Keep",   emoji:'🐉', xp:'linear-gradient(90deg,#9a3412,#fb923c)', a:'#fb923c',ag:'rgba(251,146,60,0.35)', ab:'rgba(251,146,60,0.45)', at:'#fed7aa',ad:'rgba(154,52,18,0.22)'},
+    crystal:  {name:'Crystal Cavern',  emoji:'💎', xp:'linear-gradient(90deg,#6d28d9,#a78bfa)', a:'#a78bfa',ag:'rgba(167,139,250,0.35)',ab:'rgba(167,139,250,0.45)',at:'#e9d5ff',ad:'rgba(109,40,217,0.22)'},
+    neon:     {name:'Neon City',       emoji:'🌆', xp:'linear-gradient(90deg,#86198f,#f0abfc)', a:'#f0abfc',ag:'rgba(240,171,252,0.35)',ab:'rgba(240,171,252,0.45)',at:'#f0abfc',ad:'rgba(134,25,143,0.22)'},
   };
   function _setTV(key){
     const t=MINI_THEMES[key]||MINI_THEMES.library, r=document.documentElement;
@@ -588,7 +587,7 @@ if(localStorage.getItem('gsc_admin_preview')==='1')document.body.classList.add('
         d.appendChild(b);
       }
       const floor=document.createElement('div');
-      floor.style.cssText='position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(transparent,rgba(8,47,73,0.6));border-top:1px solid rgba(56,189,248,0.12);';
+      floor.style.cssText='position:absolute;bottom:0;left:0;right:0;height:50px;background:linear-gradient(transparent,rgba(8,47,73,0.6));';
       d.appendChild(floor);
     } else if(key==='candy'){
       const shapes=['✦','✧','⋆','✺','✵','✼'];
@@ -641,11 +640,8 @@ if(localStorage.getItem('gsc_admin_preview')==='1')document.body.classList.add('
         d.appendChild(em);
       }
       const fire=document.createElement('div');
-      fire.style.cssText='position:absolute;bottom:0;left:0;right:0;height:90px;background:linear-gradient(transparent,rgba(251,146,60,0.12));border-top:1px solid rgba(251,146,60,0.08);';
+      fire.style.cssText='position:absolute;bottom:0;left:0;right:0;height:90px;background:linear-gradient(transparent,rgba(251,146,60,0.12));';
       d.appendChild(fire);
-      const dr=document.createElement('div');
-      dr.style.cssText='position:absolute;bottom:16px;right:18px;font-size:38px;opacity:0.08;animation:cosmicPulse 4s ease-in-out infinite alternate;';
-      dr.textContent='🐉'; d.appendChild(dr);
     } else if(key==='crystal'){
       [{l:'24%',t:'7%',c:'rgba(167,139,250,0.1)',w:85},{l:'64%',t:'18%',c:'rgba(34,211,238,0.08)',w:65},{l:'8%',t:'52%',c:'rgba(167,139,250,0.07)',w:75},{l:'76%',t:'64%',c:'rgba(34,211,238,0.09)',w:55}].forEach(p=>{
         const el=document.createElement('div');
@@ -769,187 +765,4 @@ function goBackToTopics(){window.scrollTo(0,0);
   document.getElementById("cardView").style.display="none";
   var tv=document.getElementById("topicView");tv.style.display="block";
   tv.classList.add('slide-in-left');setTimeout(function(){tv.classList.remove('slide-in-left');},300);
-  isFlipped=false;document.getElementById("cardInner").classList.remove("flipped");
-  hideRatingBtns();isQuizMode=false;
-  var qa=document.getElementById("quizArea");if(qa)qa.classList.remove("qa-show");
-  var cw=document.getElementById("cardWrapper");if(cw)cw.style.display="";
-  var fb=document.getElementById("flipBtn");if(fb)fb.style.display="";
-  var qt=document.getElementById("quizToggle");if(qt)qt.classList.remove("qt-active");
-  sessionSeen={};sessionXP=0;sessionGot=0;sessionCards=0;
-  refreshTileProgress();updateProgressSection();updateStatsRow();updateXPBar();
-}
-
-function syncCardHeight(){
-  var front=document.getElementById('cardFront');
-  var back=document.getElementById('cardBack');
-  var inner=document.getElementById('cardInner');
-  if(!front||!back||!inner)return;
-  inner.style.minHeight='';
-  var h=Math.max(front.offsetHeight,back.offsetHeight);
-  if(h>0)inner.style.minHeight=h+'px';
-}
-
-function renderCard(){
-  if(!filtered.length){document.getElementById("cardProgress").textContent="No cards";return;}
-  const card=filtered[current],meta=activeMeta;
-  document.getElementById("cardFront").style.background=`linear-gradient(145deg,${meta.g1},${meta.g2})`;
-  document.getElementById("cardBack").style.background=`linear-gradient(145deg,${meta.d1},${meta.d2})`;
-  const cardMeta=TOPIC_META[card.topic]||{emoji:"\ud83d\udcda"};
-  const tag=cardMeta.emoji+" "+card.topic;
-  document.getElementById("frontTag").textContent=tag;document.getElementById("backTag").textContent=tag;
-  document.getElementById("frontSession").textContent=card.session;document.getElementById("backSession").textContent=card.session;
-  document.getElementById("cardEmoji").textContent=cardMeta.emoji+" "+FUN_EMOJIS[current%FUN_EMOJIS.length];
-  if(card.svg){document.getElementById("cardQuestion").innerHTML=card.q.replace(/\n/g,"<br>")+card.svg;}else{document.getElementById("cardQuestion").textContent=card.q;}
-  document.getElementById("cardAnswer").textContent=card.a;
-  document.getElementById("cardProgress").textContent="Card "+(current+1)+" of "+filtered.length;
-  document.getElementById("prevBtn").disabled=current===0;document.getElementById("nextBtn").disabled=current===filtered.length-1;
-  const pct=filtered.length>1?(current/(filtered.length-1))*100:100;
-  document.getElementById("progressBar").style.width=pct+"%";
-  updateRatedBadge();hideRatingBtns();
-  trackCardSeen(card.topic,card.q);updateSessionBar();
-  if(isQuizMode)setTimeout(renderQuiz,0);
-  setTimeout(syncCardHeight,0);
-}
-
-function flipCard(){
-  if(isSwiping)return;
-  isFlipped=!isFlipped;
-  document.getElementById("cardInner").classList.toggle("flipped",isFlipped);
-  playFlip();
-  if(isFlipped){checkBadge('first_flip');if(!isQuizMode)showRatingBtns();}else hideRatingBtns();
-}
-
-function navigate(dir){
-  hideRatingBtns();
-  if(dir>0&&current>=filtered.length-1){showSessionSummary();return;}
-  const n=current+dir;
-  if(n>=0&&n<filtered.length){current=n;isFlipped=false;document.getElementById("cardInner").classList.remove("flipped");renderCard();}
-}
-
-function shuffleCards(){
-  for(let i=filtered.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[filtered[i],filtered[j]]=[filtered[j],filtered[i]];}
-  current=0;isFlipped=false;document.getElementById("cardInner").classList.remove("flipped");renderCard();
-}
-
-document.addEventListener("keydown",e=>{
-  if(document.getElementById("cardView").style.display==="none")return;
-  if(e.key==="ArrowRight")navigate(1);
-  else if(e.key==="ArrowLeft")navigate(-1);
-  else if(e.key===" "||e.key==="Enter"){e.preventDefault();flipCard();}
-  else if(e.key==="Escape")goBackToTopics();
-});
-
-function handleSearch(val){
-  var q=val.trim().toLowerCase(),allTile=document.querySelector('.all-tile'),tiles=document.querySelectorAll('.topic-tile:not(.all-tile)'),visible=0,match=new Set();
-  if(q)ALL_CARDS.forEach(function(c){if(c.topic.toLowerCase().includes(q)||c.q.toLowerCase().includes(q)||c.a.toLowerCase().includes(q))match.add(c.topic);});
-  tiles.forEach(function(tile){var ne=tile.querySelector('.tile-name'),name=ne?ne.textContent.toLowerCase():'',show=!q||name.includes(q)||match.has(ne?ne.textContent.trim():'');tile.style.display=show?'':'none';if(show)visible++;});
-  if(allTile)allTile.style.display=q?'none':'';
-  var nr=document.getElementById('noResults');if(nr)nr.style.display=(q&&visible===0)?'block':'none';
-}
-
-buildTopicGrid();
-
-// ── Challenge mode (launched via ?challenge=15 or ?challenge=30) ─────
-(function initChallenge(){
-  const params = new URLSearchParams(window.location.search);
-  const dur = parseInt(params.get('challenge'));
-  if (!dur || (dur !== 15 && dur !== 30)) return;
-
-  const posKey = 'gsc_english_pos_' + dur;
-  const startPos = Math.min(
-    Math.max(0, parseInt(localStorage.getItem(posKey) || '0')),
-    ALL_CARDS.length - 1
-  );
-
-  filtered = [...ALL_CARDS.slice(startPos), ...ALL_CARDS.slice(0, startPos)];
-  current = 0; isFlipped = false;
-  activeMeta = {emoji:'\u23f1\ufe0f', g1:'#78350f', g2:'#b45309', d1:'#3b1700', d2:'#78350f'};
-  document.getElementById('cvTitle').textContent = '\u23f1\ufe0f ' + dur + '-Minute Challenge';
-  document.getElementById('cvSub').textContent = 'Resuming from card ' + (startPos + 1) + ' \u00b7 ' + ALL_CARDS.length + ' total';
-  _enterCardView();
-
-  const bar = document.getElementById('challengeBar');
-  if (bar) bar.classList.add('active');
-  document.getElementById('ctLabel').textContent = '\u23f1\ufe0f English ' + dur + '-min';
-  document.getElementById('cardView').style.paddingTop = '56px';
-
-  let remaining = dur * 60;
-  const fmt = s => Math.floor(s/60) + ':' + String(s%60).padStart(2,'0');
-  document.getElementById('ctTime').textContent = fmt(remaining);
-
-  const tick = setInterval(() => {
-    remaining--;
-    document.getElementById('ctFill').style.width = ((remaining / (dur*60)) * 100) + '%';
-    document.getElementById('ctTime').textContent = fmt(remaining);
-    if (remaining <= 60) document.getElementById('ctTime').style.color = '#f87171';
-    if (remaining <= 0) { clearInterval(tick); onEnglishChallengeComplete(dur, startPos, posKey); }
-  }, 1000);
-  window._chalInterval = tick;
-  window._chalDur = dur; window._chalStartPos = startPos; window._chalPosKey = posKey;
-
-  const origBack = window.goBackToTopics;
-  window.goBackToTopics = function(){
-    if (window._chalInterval) clearInterval(window._chalInterval);
-    localStorage.setItem(window._chalPosKey, String((window._chalStartPos + current) % ALL_CARDS.length));
-    window.location.href = 'index.html';
-  };
-})();
-
-function finishChallengeEarly(){
-  if (window._chalInterval) clearInterval(window._chalInterval);
-  onEnglishChallengeComplete(window._chalDur, window._chalStartPos, window._chalPosKey);
-}
-
-function onEnglishChallengeComplete(dur, startPos, posKey){
-  const cardsStudied = current + 1;
-  localStorage.setItem(posKey, String((startPos + cardsStudied) % ALL_CARDS.length));
-  const today = new Date();
-  const dateKey = today.getFullYear() + '-' + String(today.getMonth()+1).padStart(2,'0') + '-' + String(today.getDate()).padStart(2,'0');
-  const _uid = localStorage.getItem('gsc_userId') || 'shared';
-  const _ck = 'gsc_challenges_' + _uid;
-  const stored = JSON.parse(localStorage.getItem(_ck) || '{}');
-  if (!stored[dateKey]) stored[dateKey] = {};
-  stored[dateKey]['english' + dur] = true;
-  localStorage.setItem(_ck, JSON.stringify(stored));
-  document.getElementById('ccSub').textContent = 'You nailed the ' + dur + '-minute English challenge! \ud83d\udcda';
-  document.getElementById('ccCards').textContent = '\ud83c\udccf ' + cardsStudied + ' card' + (cardsStudied !== 1 ? 's' : '') + ' studied';
-  document.getElementById('challengeComplete').classList.add('show');
-  playCelebrate();
-}
-
-function continueAfterChallenge(){
-  document.getElementById('challengeComplete').classList.remove('show');
-}
-</script>
-<!-- Challenge timer bar -->
-<div id="challengeBar">
-  <div class="ct-label" id="ctLabel">&#9203; 15-min</div>
-  <div class="ct-track"><div class="ct-fill" id="ctFill"></div></div>
-  <div class="ct-time" id="ctTime">15:00</div>
-  <button class="ct-finish" onclick="finishChallengeEarly()">Done &#10003;</button>
-</div>
-<!-- Challenge complete overlay -->
-<div id="challengeComplete">
-  <div class="cc-orb">&#127881;</div>
-  <div class="cc-title">Challenge Complete!</div>
-  <div class="cc-sub" id="ccSub">You nailed the challenge!</div>
-  <div class="cc-cards" id="ccCards">&#127183; 0 cards studied</div>
-  <div class="cc-note">Remaining cards saved &#8212; next challenge continues here &#128214;</div>
-  <button class="cc-btn cc-btn-primary" onclick="window.location.href='English_Flashcards.html?challenge=15'" style="background:linear-gradient(90deg,#059669,#34d399);">&#43; Another 15-min Challenge</button>
-  <button class="cc-btn cc-btn-primary" onclick="window.location.href='index.html'">&#127968; Back to Home</button>
-  <button class="cc-btn cc-btn-secondary" onclick="continueAfterChallenge()">Keep going &#8594;</button>
-</div>
-<script>
-(function(){
-  var canvas=document.getElementById("leafCanvas"),ctx=canvas?canvas.getContext("2d"):null;
-  if(!ctx)return;
-  var W,H,leaves=[];
-  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight;}
-  resize();window.addEventListener("resize",resize);
-  for(var i=0;i<60;i++)leaves.push({x:Math.random()*99999,y:Math.random()*99999,r:Math.random()*3+1,s:Math.random()*0.3+0.05,a:Math.random()*Math.PI*2,spin:(Math.random()-0.5)*0.04,blink:Math.random()*Math.PI*2,bspeed:Math.random()*0.015+0.003,color:'hsl('+(100+Math.floor(Math.random()*60))+','+(50+Math.floor(Math.random()*30))+'%,'+(30+Math.floor(Math.random()*30))+'%)'});
-  function draw(){ctx.clearRect(0,0,W,H);leaves.forEach(function(l){var ox=((l.x+l.a*l.s*100)%W+W)%W,oy=((l.y+l.a*l.s*50)%H+H)%H,alpha=0.3+0.25*Math.sin(l.blink);ctx.save();ctx.globalAlpha=alpha;ctx.fillStyle=l.color;ctx.translate(ox,oy);ctx.rotate(l.spin*l.a);ctx.beginPath();ctx.ellipse(0,0,l.r,l.r*2,0,0,Math.PI*2);ctx.fill();ctx.restore();l.a+=l.s*0.004;l.blink+=l.bspeed;});requestAnimationFrame(draw);}
-  draw();
-})();
-</script>
-</body>
-</html>
+  isFlipped=false;document.getElementById("cardInner").classList.rem
