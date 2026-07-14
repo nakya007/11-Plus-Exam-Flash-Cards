@@ -54,28 +54,47 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 .t-check{position:absolute;top:5px;right:6px;font-size:11px;color:#fff;opacity:0;transition:opacity 0.15s;}
 .theme-card.selected .t-check{opacity:1;}
 /* Home */
-.greeting{font-size:30px;font-weight:900;text-align:center;margin-bottom:2px;}
-.greeting-sub{font-size:13px;opacity:0.45;text-align:center;margin-bottom:18px;}
-.stats-row{display:flex;gap:8px;width:100%;margin-bottom:22px;}
-.stat-pill{flex:1;background:rgba(255,255,255,0.06);border:1px solid var(--ta-border);border-radius:14px;padding:12px 8px;text-align:center;}
-.stat-val{font-size:22px;font-weight:900;line-height:1;}
-.stat-lbl{font-size:10px;opacity:0.45;margin-top:3px;text-transform:uppercase;letter-spacing:0.3px;}
-.subject-btn{width:100%;padding:20px;border-radius:20px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:12px;display:flex;align-items:center;gap:14px;transition:transform 0.15s,box-shadow 0.15s;}
+.greeting{font-size:28px;font-weight:900;text-align:center;margin-bottom:2px;}
+.greeting-sub{font-size:13px;opacity:0.45;text-align:center;margin-bottom:14px;}
+.stats-row{display:flex;gap:8px;width:100%;margin-bottom:20px;}
+.stat-pill{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px 6px;text-align:center;}
+.stat-val{font-size:20px;font-weight:900;line-height:1;}
+.stat-lbl{font-size:9px;opacity:0.4;margin-top:3px;text-transform:uppercase;letter-spacing:0.3px;}
+/* Section labels */
+.home-section{width:100%;margin-bottom:10px;}
+.home-section-lbl{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;opacity:0.45;margin-bottom:8px;}
+/* Flashcard subject buttons */
+.subject-btn{width:100%;padding:18px 20px;border-radius:20px;border:none;cursor:pointer;font-family:'Nunito',sans-serif;margin-bottom:10px;display:flex;align-items:center;gap:14px;transition:transform 0.15s,box-shadow 0.15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
 .subject-btn:hover{transform:translateY(-3px);}
-.subject-btn:active{transform:scale(0.98);}
-.sb-icon{font-size:34px;line-height:1;flex-shrink:0;}
-.sb-info{text-align:left;}
-.sb-title{font-size:19px;font-weight:900;color:#fff;}
-.sb-sub{font-size:12px;color:rgba(255,255,255,0.6);margin-top:2px;}
-.btn-maths{background:#1565c0;box-shadow:0 6px 24px rgba(21,101,192,0.4);}
-.btn-english{background:#2e7d32;box-shadow:0 6px 24px rgba(46,125,50,0.4);}
-.theme-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:1px solid var(--ta-border);border-radius:20px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;margin-top:4px;margin-bottom:6px;transition:background 0.15s;}
-.theme-chip:hover{background:rgba(255,255,255,0.11);}
+.subject-btn:active{transform:scale(0.97);}
+.sb-icon{font-size:36px;line-height:1;flex-shrink:0;}
+.sb-info{text-align:left;flex:1;}
+.sb-title{font-size:20px;font-weight:900;color:#fff;}
+.sb-sub{font-size:12px;color:rgba(255,255,255,0.55);margin-top:2px;}
+.sb-cta{font-size:11px;font-weight:800;color:rgba(255,255,255,0.85);margin-top:5px;letter-spacing:0.3px;}
+.sb-arrow{font-size:20px;color:rgba(255,255,255,0.5);flex-shrink:0;}
+.btn-maths{background:linear-gradient(135deg,#1565c0,#1976d2);box-shadow:0 6px 24px rgba(21,101,192,0.45);}
+.btn-english{background:linear-gradient(135deg,#2e7d32,#388e3c);box-shadow:0 6px 24px rgba(46,125,50,0.45);}
+/* Compact challenge rows */
+.ch-list{width:100%;display:flex;flex-direction:column;gap:8px;}
+.ch-row-btn{width:100%;display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:16px;padding:13px 16px;cursor:pointer;font-family:'Nunito',sans-serif;transition:background 0.15s,border-color 0.15s,transform 0.12s;text-align:left;-webkit-tap-highlight-color:transparent;touch-action:manipulation;}
+.ch-row-btn:hover{background:rgba(255,255,255,0.09);border-color:rgba(255,255,255,0.2);}
+.ch-row-btn:active{transform:scale(0.98);}
+.ch-row-btn.done{border-color:rgba(74,222,128,0.3);background:rgba(74,222,128,0.06);}
+.ch-row-icon{font-size:22px;flex-shrink:0;}
+.ch-row-body{flex:1;}
+.ch-row-title{font-size:14px;font-weight:800;color:#fff;}
+.ch-row-sub{font-size:11px;color:rgba(255,255,255,0.4);margin-top:1px;}
+.ch-row-badge{background:rgba(0,0,0,0.25);border-radius:20px;padding:4px 10px;font-size:11px;color:rgba(255,255,255,0.75);font-weight:700;flex-shrink:0;white-space:nowrap;}
+.ch-row-btn.done .ch-row-badge{background:rgba(74,222,128,0.15);color:rgba(74,222,128,0.9);}
+/* Theme chips */
+.theme-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:20px;padding:6px 12px;font-size:11px;font-weight:700;cursor:pointer;margin-top:4px;margin-bottom:4px;transition:background 0.15s;-webkit-tap-highlight-color:transparent;}
+.theme-chip:hover{background:rgba(255,255,255,0.1);}
 .theme-chip-muted{opacity:0.4;font-size:11px;}
-/* Home action buttons */
-.home-actions{display:flex;gap:10px;width:100%;margin-top:14px;}
-.home-action-btn{flex:1;padding:11px 8px;border-radius:14px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:rgba(255,255,255,0.7);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:background 0.15s,border-color 0.15s,color 0.15s;text-align:center;}
-.home-action-btn:hover{background:rgba(255,255,255,0.13);border-color:rgba(255,255,255,0.28);color:#fff;}
+/* Home footer */
+.home-footer{width:100%;display:flex;align-items:center;justify-content:space-between;margin-top:18px;padding-top:14px;border-top:1px solid rgba(255,255,255,0.07);}
+.logout-btn{background:none;border:none;color:rgba(255,255,255,0.3);font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;cursor:pointer;padding:6px 0;transition:color 0.15s;}
+.logout-btn:hover{color:rgba(255,255,255,0.6);}
 /* Overlays */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.82);z-index:200;justify-content:center;align-items:flex-end;}
 .overlay.open{display:flex;}
@@ -138,9 +157,8 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 .btn-signin-link{background:none;border:1px solid rgba(255,255,255,0.14);border-radius:14px;color:rgba(255,255,255,0.5);font-family:'Nunito',sans-serif;font-size:13px;font-weight:700;cursor:pointer;padding:10px 18px;transition:color 0.15s,border-color 0.15s;position:relative;z-index:2;width:100%;margin-top:4px;}
 .btn-signin-link:hover{color:rgba(255,255,255,0.75);border-color:rgba(255,255,255,0.28);}
 .btn:active,.btn-primary:active{transform:scale(0.96);transition:transform 0.08s;}
-.home-action-btn:active{transform:scale(0.96);transition:transform 0.08s;}
 .saved-profile-btn:active{transform:scale(0.97);transition:transform 0.08s;}
-.ch-badge.done{animation:chDone 0.45s cubic-bezier(0.34,1.56,0.64,1);}
+.ch-row-btn.done{animation:chDone 0.45s cubic-bezier(0.34,1.56,0.64,1);}
 @keyframes chDone{0%{transform:scale(0.92);}55%{transform:scale(1.08);}100%{transform:scale(1);}}
 .portal-stars{position:absolute;inset:0;pointer-events:none;overflow:hidden;}
 .pstar{position:absolute;width:3px;height:3px;border-radius:50%;background:#c4b5fd;animation:twinkle 2.5s ease-in-out infinite;}
@@ -150,22 +168,8 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 .spinner{width:36px;height:36px;border:3px solid rgba(255,255,255,0.1);border-top-color:#42a5f5;border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:14px;}
 @keyframes spin{to{transform:rotate(360deg);}}
 .loading-text{font-size:13px;opacity:0.4;}
-/* Challenges */
-.challenge-panel{width:100%;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:18px;padding:14px;margin-top:12px;margin-bottom:4px;}
-.challenge-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.challenge-ttl{font-size:11px;font-weight:800;color:#a78bfa;text-transform:uppercase;letter-spacing:1px;}
-.challenge-streak-pill{background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);border-radius:20px;padding:3px 10px;font-size:12px;font-weight:900;color:#fbbf24;}
-.ch-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
-.ch-more-btn{width:100%;padding:7px;border-radius:10px;border:1px solid rgba(74,222,128,0.3);background:rgba(74,222,128,0.06);color:rgba(74,222,128,0.8);font-family:'Nunito',sans-serif;font-size:11px;font-weight:800;cursor:pointer;margin-top:4px;transition:background 0.15s;}
-.ch-more-btn:hover{background:rgba(74,222,128,0.12);}
-.ch-badge{border-radius:12px;padding:12px 8px 11px;text-align:center;cursor:pointer;border:1px solid rgba(255,255,255,0.08);background:rgba(255,255,255,0.04);transition:transform 0.12s,border-color 0.2s,background 0.2s;}
-.ch-badge:hover{transform:translateY(-2px);}
-.ch-badge:active{transform:scale(0.97);}
-.ch-badge.done{background:rgba(74,222,128,0.08);border-color:rgba(74,222,128,0.3);}
-.ch-icon{font-size:20px;line-height:1;margin-bottom:4px;}
-.ch-label{font-size:11px;font-weight:800;color:rgba(255,255,255,0.8);line-height:1.2;}
-.ch-time{font-size:10px;color:rgba(255,255,255,0.35);margin-top:2px;}
-.ch-badge.done .ch-time{color:rgba(74,222,128,0.7);}
+/* Challenge streak pill */
+.challenge-streak-pill{background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.3);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:900;color:#fbbf24;}
 @media(max-width:400px){.theme-grid{grid-template-columns:repeat(2,1fr);}.greeting{font-size:26px;}.pin-grid{gap:7px;}.pin-key{padding:14px 8px;font-size:20px;}}
 </style>
 </head>
@@ -298,49 +302,73 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
     <span style="color:#ffd54f;font-size:12px;font-weight:800;">🔐 Admin Preview Mode</span>
     <button onclick="exitAdminPreview()" style="background:rgba(249,212,35,0.2);border:1px solid rgba(249,212,35,0.35);color:#ffd54f;font-size:11px;font-weight:800;padding:4px 10px;border-radius:8px;cursor:pointer;font-family:inherit;">← Back to Admin</button>
   </div>
+
   <div class="greeting" id="homeGreeting">Hi there! 👋</div>
   <div class="greeting-sub">Ready to practise today?</div>
+
+  <!-- Stats -->
   <div class="stats-row">
     <div class="stat-pill"><div class="stat-val" id="statXP">0</div><div class="stat-lbl">XP</div></div>
     <div class="stat-pill"><div class="stat-val" id="statStreak">—</div><div class="stat-lbl">Streak</div></div>
     <div class="stat-pill"><div class="stat-val" id="statMastered">0</div><div class="stat-lbl">Mastered</div></div>
   </div>
-  <div class="challenge-panel" id="challengePanel">
-    <div class="challenge-header">
-      <div class="challenge-ttl">🏆 Daily Challenges</div>
-      <div class="challenge-streak-pill" id="challengeStreakPill" style="display:none;">🔥 0</div>
+
+  <!-- Flashcards section -->
+  <div class="home-section">
+    <div class="home-section-lbl">📚 Flashcards — tap to study</div>
+    <button class="subject-btn btn-maths" onclick="goToSubject('maths')">
+      <div class="sb-icon" id="sbMathsIcon">🚀</div>
+      <div class="sb-info">
+        <div class="sb-title">Maths</div>
+        <div class="sb-sub">Numbers, Shapes &amp; More</div>
+        <div class="sb-cta">Start studying →</div>
+      </div>
+      <div class="sb-arrow">▶</div>
+    </button>
+    <button class="subject-btn btn-english" onclick="goToSubject('english')">
+      <div class="sb-icon" id="sbEnglishIcon">🦉</div>
+      <div class="sb-info">
+        <div class="sb-title">English</div>
+        <div class="sb-sub">Grammar, Writing &amp; More</div>
+        <div class="sb-cta">Start studying →</div>
+      </div>
+      <div class="sb-arrow">▶</div>
+    </button>
+  </div>
+
+  <!-- Daily Challenges section -->
+  <div class="home-section" id="challengePanel">
+    <div class="home-section-lbl" style="display:flex;align-items:center;gap:8px;">
+      🏆 Daily Challenges
+      <span class="challenge-streak-pill" id="challengeStreakPill" style="display:none;">🔥 0</span>
     </div>
-    <div class="ch-grid" id="challengeGrid">
-      <div onclick="goToChallenge('maths',15)" style="background:linear-gradient(145deg,#1e3a5f,#2563eb);border-radius:20px;padding:20px 12px;text-align:center;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(37,99,235,0.25);transition:transform 0.15s;" onmouseenter="this.style.transform='scale(1.04)'" onmouseleave="this.style.transform='scale(1)'">
-        <div style="position:absolute;top:-8px;right:-8px;font-size:48px;opacity:0.1;pointer-events:none;">🎯</div>
-        <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.65);letter-spacing:1.5px;margin-bottom:8px;">MATHS</div>
-        <div style="font-size:30px;margin-bottom:7px;">🎯</div>
-        <div style="font-size:13px;font-weight:900;color:#fff;">Mission</div>
-        <div style="background:rgba(0,0,0,0.25);border-radius:20px;padding:3px 10px;display:inline-block;font-size:10px;color:rgba(255,255,255,0.85);font-weight:700;margin-top:7px;">⏱ 15 min</div>
-      </div>
-      <div onclick="goToChallenge('english',15)" style="background:linear-gradient(145deg,#134e5e,#71b280);border-radius:20px;padding:20px 12px;text-align:center;cursor:pointer;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(113,178,128,0.25);transition:transform 0.15s;" onmouseenter="this.style.transform='scale(1.04)'" onmouseleave="this.style.transform='scale(1)'">
-        <div style="position:absolute;top:-8px;right:-8px;font-size:48px;opacity:0.1;pointer-events:none;">📚</div>
-        <div style="font-size:9px;font-weight:800;color:rgba(255,255,255,0.65);letter-spacing:1.5px;margin-bottom:8px;">ENGLISH</div>
-        <div style="font-size:30px;margin-bottom:7px;">📚</div>
-        <div style="font-size:13px;font-weight:900;color:#fff;">Quest</div>
-        <div style="background:rgba(0,0,0,0.25);border-radius:20px;padding:3px 10px;display:inline-block;font-size:10px;color:rgba(255,255,255,0.85);font-weight:700;margin-top:7px;">⏱ 15 min</div>
-      </div>
+    <div class="ch-list" id="challengeGrid">
+      <button class="ch-row-btn" onclick="goToChallenge('maths',15)" id="chMaths15">
+        <div class="ch-row-icon">🎯</div>
+        <div class="ch-row-body">
+          <div class="ch-row-title">Maths Mission</div>
+          <div class="ch-row-sub">Timed flashcard challenge</div>
+        </div>
+        <div class="ch-row-badge">⏱ 15 min</div>
+      </button>
+      <button class="ch-row-btn" onclick="goToChallenge('english',15)" id="chEnglish15">
+        <div class="ch-row-icon">📖</div>
+        <div class="ch-row-body">
+          <div class="ch-row-title">English Quest</div>
+          <div class="ch-row-sub">Timed flashcard challenge</div>
+        </div>
+        <div class="ch-row-badge">⏱ 15 min</div>
+      </button>
     </div>
   </div>
-  <button class="subject-btn btn-maths" onclick="goToSubject('maths')">
-    <div class="sb-icon" id="sbMathsIcon">🚀</div>
-    <div class="sb-info"><div class="sb-title">Maths</div><div class="sb-sub">Numbers, Shapes &amp; More</div></div>
-  </button>
-  <button class="subject-btn btn-english" onclick="goToSubject('english')">
-    <div class="sb-icon" id="sbEnglishIcon">🦉</div>
-    <div class="sb-info"><div class="sb-title">English</div><div class="sb-sub">Grammar, Writing &amp; More</div></div>
-  </button>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:14px;">
-    <div class="theme-chip" onclick="openThemeChanger('maths')"><span id="chipMathsEmoji">🚀</span><b>Maths</b><span class="theme-chip-muted">· <span id="chipMathsName">Space Explorer</span></span></div>
-    <div class="theme-chip" onclick="openThemeChanger('english')"><span id="chipEnglishEmoji">📚</span><b>English</b><span class="theme-chip-muted">· <span id="chipEnglishName">Enchanted Library</span></span></div>
-  </div>
-  <div class="home-actions">
-    <button class="home-action-btn" onclick="logOut()">🚪 Log Out</button>
+
+  <!-- Footer: themes + logout -->
+  <div class="home-footer">
+    <div style="display:flex;gap:6px;flex-wrap:wrap;">
+      <div class="theme-chip" onclick="openThemeChanger('maths')"><span id="chipMathsEmoji">🚀</span><span class="theme-chip-muted"><span id="chipMathsName">Space</span></span></div>
+      <div class="theme-chip" onclick="openThemeChanger('english')"><span id="chipEnglishEmoji">📚</span><span class="theme-chip-muted"><span id="chipEnglishName">Library</span></span></div>
+    </div>
+    <button class="logout-btn" onclick="logOut()">🚪 Log out</button>
   </div>
 </div>
 
@@ -577,6 +605,8 @@ function logOut() {
   localStorage.removeItem('gsc_userId');
   sessionStorage.removeItem('gsc_session_user');
   currentProfile = null;
+  _pendingNewProfile = null; _newPin = '';
+  if (_newPinPad) _newPinPad.reset();
   const nameEl = document.getElementById('nameInput'); if (nameEl) nameEl.value = '';
   const inviteEl = document.getElementById('inviteInput'); if (inviteEl) inviteEl.value = '';
   document.body.style.background = 'radial-gradient(ellipse at 50% 0%,#2d1b69 0%,#0d0d2b 55%,#060618 100%)';
@@ -591,6 +621,8 @@ function startNewProfile() {
   sessionStorage.removeItem('gsc_session_user');
   currentProfile = null;
   // Reset all new-profile form fields
+  _pendingNewProfile = null; _newPin = '';
+  if (_newPinPad) _newPinPad.reset();
   const nameEl = document.getElementById('nameInput'); if (nameEl) nameEl.value = '';
   const inviteEl = document.getElementById('inviteInput'); if (inviteEl) inviteEl.value = '';
   const profErr = document.getElementById('profileErr'); if (profErr) profErr.textContent = '';
@@ -930,8 +962,16 @@ function renderChallengePanel(done){
   const tiles = grid.querySelectorAll('[onclick]');
   const mDone = done['maths15']||done['maths30'];
   const eDone = done['english15']||done['english30'];
-  if(tiles[0]){ tiles[0].style.opacity = mDone ? '0.55' : '1'; tiles[0].style.outline = mDone ? '2px solid rgba(74,222,128,0.6)' : 'none'; }
-  if(tiles[1]){ tiles[1].style.opacity = eDone ? '0.55' : '1'; tiles[1].style.outline = eDone ? '2px solid rgba(74,222,128,0.6)' : 'none'; }
+  if(tiles[0]){
+    tiles[0].classList.toggle('done', !!mDone);
+    const badge0 = tiles[0].querySelector('.ch-row-badge');
+    if(badge0) badge0.textContent = mDone ? '✅ Done' : '⏱ 15 min';
+  }
+  if(tiles[1]){
+    tiles[1].classList.toggle('done', !!eDone);
+    const badge1 = tiles[1].querySelector('.ch-row-badge');
+    if(badge1) badge1.textContent = eDone ? '✅ Done' : '⏱ 15 min';
+  }
 }
 
 function goToChallenge(subject, mins){
