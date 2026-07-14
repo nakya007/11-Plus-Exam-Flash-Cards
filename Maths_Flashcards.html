@@ -603,9 +603,55 @@ function updateProgressSection(){
 }
 
 /* ── Quiz ── */
-function toggleQuizMode(){isQuizMode=!isQuizMode;var bt=document.getElementById('quizToggle');if(bt)bt.classList.toggle('qt-active',isQuizMode);var qa=document.getElementById('quizArea'),cw=document.getElementById('cardWrapper'),fb=document.getElementById('flipBtn'),rw=document.getElementById('ratingWrap');if(isQuizMode){if(qa)qa.classList.add('qa-show');if(cw)cw.style.display='none';if(fb)fb.style.display='none';if(rw)rw.classList.remove('rw-show');renderQuiz();}else{if(qa)qa.classList.remove('qa-show');if(cw)cw.style.display='';if(fb)fb.style.display='';}}
-function renderQuiz(){if(!filtered||!filtered.length)return;var card=filtered[current],correct=card.q;var pool=filtered.filter(function(c){return c.q!==correct;}).sort(function(){return Math.random()-0.5;}).slice(0,3).map(function(c){return c.q;});var opts=[correct].concat(pool).sort(function(){return Math.random()-0.5;});var qb=document.getElementById('quizQuestion');if(qb)qb.textContent='Which question matches this answer?\n'+card.a.substring(0,80)+'…';var ob=document.getElementById('quizOpts');if(!ob)return;ob.innerHTML='';opts.forEach(function(o){var btn=document.createElement('button');btn.className='quiz-opt';btn.textContent=o.length>60?o.substring(0,57)+'…':o;btn.onclick=function(){answerQuiz(o,correct,ob);};ob.appendChild(btn);});}
-function answerQuiz(chosen,correct,container){var btns=container.querySelectorAll('.quiz-opt');btns.forEach(function(b){b.onclick=null;var t=b.textContent,c=correct.length>60?correct.substring(0,57)+'…':correct,ch=chosen.length>60?chosen.substring(0,57)+'…':chosen;if(t===c)b.classList.add('qo-correct');else if(t===ch)b.classList.add('qo-wrong');});if(chosen===correct){playGot();sessionQuizCorrect++;var tqc=lsGet('gsc_quiz_correct',0)+1;lsSet('gsc_quiz_correct',tqc);if(tqc>=10)checkBadge('quiz10');}else playHard();}
+function toggleQuizMode(){
+  clearTimeout(window._quizAdvTimer);
+  isQuizMode=!isQuizMode;
+  var bt=document.getElementById('quizToggle');if(bt)bt.classList.toggle('qt-active',isQuizMode);
+  var qa=document.getElementById('quizArea'),cw=document.getElementById('cardWrapper'),fb=document.getElementById('flipBtn'),rw=document.getElementById('ratingWrap');
+  if(isQuizMode){if(qa)qa.classList.add('qa-show');if(cw)cw.style.display='none';if(fb)fb.style.display='none';if(rw)rw.classList.remove('rw-show');renderQuiz();}
+  else{if(qa)qa.classList.remove('qa-show');if(cw)cw.style.display='';if(fb)fb.style.display='';}
+}
+function renderQuiz(){
+  if(!filtered||!filtered.length)return;
+  var card=filtered[current];
+  var correct=card.a;
+  var sameTopic=filtered.filter(function(c){return c.topic===card.topic&&c.a!==correct;});
+  var other=filtered.filter(function(c){return c.topic!==card.topic&&c.a!==correct;});
+  var pool=sameTopic.concat(other).sort(function(){return Math.random()-0.5;}).slice(0,3).map(function(c){return c.a;});
+  var opts=[correct].concat(pool).sort(function(){return Math.random()-0.5;});
+  var qb=document.getElementById('quizQuestion');
+  if(qb)qb.textContent=card.q;
+  var ob=document.getElementById('quizOpts');if(!ob)return;
+  ob.innerHTML='';
+  opts.forEach(function(o){
+    var btn=document.createElement('button');btn.className='quiz-opt';
+    btn.textContent=o.length>70?o.substring(0,67)+'…':o;
+    btn.onclick=function(){answerQuiz(o,correct,ob,card);};
+    ob.appendChild(btn);
+  });
+}
+function answerQuiz(chosen,correct,container,card){
+  var btns=container.querySelectorAll('.quiz-opt');
+  btns.forEach(function(b){
+    b.onclick=null;
+    var t=b.textContent,c=correct.length>70?correct.substring(0,67)+'…':correct,ch=chosen.length>70?chosen.substring(0,67)+'…':chosen;
+    if(t===c)b.classList.add('qo-correct');else if(t===ch)b.classList.add('qo-wrong');
+  });
+  if(chosen===correct){
+    playGot();sessionQuizCorrect++;
+    var tqc=lsGet('gsc_quiz_correct',0)+1;lsSet('gsc_quiz_correct',tqc);
+    if(tqc>=10)checkBadge('quiz10');
+    if(card)saveRating(card.topic,card.q,'got');
+  }else{
+    playHard();
+    if(card)saveRating(card.topic,card.q,'hard');
+  }
+  clearTimeout(window._quizAdvTimer);
+  window._quizAdvTimer=setTimeout(function(){
+    if(!isQuizMode)return;
+    if(current>=filtered.length-1)showSessionSummary();else navigate(1);
+  },1500);
+}
 
 /* ── Summary / Celebration ── */
 function showSessionSummary(){
@@ -1026,6 +1072,7 @@ function flipCard(){
 }
 
 function navigate(dir){
+  clearTimeout(window._quizAdvTimer);
   hideRatingBtns();
   if(dir>0&&current>=filtered.length-1){showSessionSummary();return;}
   const n=current+dir;
