@@ -1009,9 +1009,9 @@ function renderHome() {
   const streak  = Math.max(_streakObj.count||0, p.streak||0);
   const ratings = JSON.parse(localStorage.getItem('gsc_ratings_'+_uid)||'{}');
   const mastered = Object.values(ratings).filter(v=>v==='got').length;
-  document.getElementById('statXP').textContent       = xp;
+  document.getElementById('statXP').textContent       = xp+' ⭐';
   document.getElementById('statStreak').textContent   = streak>0 ? streak+' 🔥' : '—';
-  document.getElementById('statMastered').textContent = mastered;
+  document.getElementById('statMastered').textContent = mastered>0 ? mastered+' ✅' : mastered;
   document.getElementById('chipMathsEmoji').textContent   = tm.emoji;
   document.getElementById('chipMathsName').textContent    = tm.name;
   document.getElementById('chipEnglishEmoji').textContent = te.emoji;
