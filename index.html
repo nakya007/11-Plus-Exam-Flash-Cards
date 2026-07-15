@@ -54,9 +54,25 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 .greeting{font-size:28px;font-weight:900;text-align:center;margin-bottom:2px;}
 .greeting-sub{font-size:13px;opacity:0.45;text-align:center;margin-bottom:14px;}
 .stats-row{display:flex;gap:8px;width:100%;margin-bottom:20px;}
-.stat-pill{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px 6px;text-align:center;}
+.stat-pill{flex:1;background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px 6px;text-align:center;cursor:pointer;touch-action:manipulation;transition:background 0.15s,transform 0.12s;-webkit-tap-highlight-color:transparent;}
+.stat-pill:active{background:rgba(255,255,255,0.12);transform:scale(0.95);}
 .stat-val{font-size:20px;font-weight:900;line-height:1;}
 .stat-lbl{font-size:9px;opacity:0.4;margin-top:3px;text-transform:uppercase;letter-spacing:0.3px;}
+/* ── Stat tooltip bottom sheet ── */
+#statTipOverlay{display:none;position:fixed;inset:0;z-index:200;background:rgba(0,0,0,0.55);align-items:flex-end;justify-content:center;}
+#statTipOverlay.show{display:flex;}
+#statTipBox{background:linear-gradient(145deg,#0f1535,#1e2a5e);border:1px solid var(--ta-border,rgba(129,140,248,0.35));border-radius:24px 24px 0 0;padding:28px 24px max(36px,env(safe-area-inset-bottom,36px));width:100%;max-width:480px;animation:tipSlideUp 0.28s ease;}
+@keyframes tipSlideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+#statTipIcon{font-size:44px;text-align:center;margin-bottom:10px;}
+#statTipTitle{font-size:18px;font-weight:900;text-align:center;margin-bottom:8px;color:var(--ta-text,#c7d2fe);}
+#statTipBody{font-size:14px;line-height:1.65;text-align:center;opacity:0.82;margin-bottom:22px;}
+.tip-close-btn{width:100%;padding:13px;border-radius:14px;border:1px solid rgba(255,255,255,0.18);background:rgba(255,255,255,0.07);color:inherit;font-family:'Nunito',sans-serif;font-size:14px;font-weight:800;cursor:pointer;}
+/* ── Home mascot tip bubble ── */
+#homeMascotWrap{display:none;align-items:flex-start;gap:12px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:16px;padding:12px 36px 12px 14px;margin-bottom:14px;position:relative;}
+#homeMascotWrap.hm-show{display:flex;animation:fadeUp 0.4s ease;}
+#homeMascotEmoji{font-size:30px;flex-shrink:0;line-height:1.1;}
+#homeMascotMsg{font-size:13px;line-height:1.55;flex:1;}
+#homeMascotDismiss{position:absolute;top:8px;right:10px;background:none;border:none;color:rgba(255,255,255,0.35);font-size:18px;cursor:pointer;padding:2px 6px;line-height:1;font-family:inherit;}
 /* Section labels */
 .home-section{width:100%;margin-bottom:10px;}
 .home-section-lbl{font-size:10px;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;opacity:0.45;margin-bottom:8px;}
@@ -303,11 +319,18 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
   <div class="greeting" id="homeGreeting">Hi there! 👋</div>
   <div class="greeting-sub">Ready to practise today?</div>
 
+  <!-- Mascot tip bubble (first-login only) -->
+  <div id="homeMascotWrap">
+    <span id="homeMascotEmoji">🚀</span>
+    <span id="homeMascotMsg">Rate cards to earn <strong>XP ⭐</strong>, study every day to grow your <strong>Streak 🔥</strong>, and cards you nail count as <strong>Mastered ✅</strong>. Tap each number to find out more!</span>
+    <button id="homeMascotDismiss" onclick="dismissMascotTip()" aria-label="Dismiss">✕</button>
+  </div>
+
   <!-- Stats -->
   <div class="stats-row">
-    <div class="stat-pill"><div class="stat-val" id="statXP">0</div><div class="stat-lbl">XP</div></div>
-    <div class="stat-pill"><div class="stat-val" id="statStreak">—</div><div class="stat-lbl">Streak</div></div>
-    <div class="stat-pill"><div class="stat-val" id="statMastered">0</div><div class="stat-lbl">Mastered</div></div>
+    <div class="stat-pill" onclick="showStatTip('xp')"><div class="stat-val" id="statXP">0</div><div class="stat-lbl">XP</div></div>
+    <div class="stat-pill" onclick="showStatTip('streak')"><div class="stat-val" id="statStreak">—</div><div class="stat-lbl">Streak</div></div>
+    <div class="stat-pill" onclick="showStatTip('mastered')"><div class="stat-val" id="statMastered">0</div><div class="stat-lbl">Mastered</div></div>
   </div>
 
   <!-- Flashcards section -->
@@ -381,6 +404,16 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
 </div>
 
 <!-- PIN SET OVERLAY (during profile creation) -->
+<!-- ── Stat tooltip bottom sheet ── -->
+<div id="statTipOverlay" onclick="if(event.target===this)hideStatTip()">
+  <div id="statTipBox">
+    <div id="statTipIcon">⭐</div>
+    <div id="statTipTitle">XP</div>
+    <div id="statTipBody"></div>
+    <button class="tip-close-btn" onclick="hideStatTip()">Got it! 👍</button>
+  </div>
+</div>
+
 <div class="overlay" id="pinSetOverlay">
   <div class="overlay-sheet" style="text-align:center;">
     <div class="overlay-title">🔐 Set Your PIN</div>
@@ -919,6 +952,53 @@ async function confirmThemeAndCreate() {
   if (btn) btn.disabled = false;
 }
 
+/* ── Stat tooltips ── */
+const STAT_TIPS = {
+  xp: {
+    icon: '⭐',
+    title: 'XP — Experience Points',
+    body: 'You earn <strong>10 XP</strong> every time you tap "Got it!" on a card, and <strong>3 XP</strong> for "Need practice." XP never goes down — it shows how much work you\'ve put in! The more XP you earn, the higher your level. 🏆'
+  },
+  streak: {
+    icon: '🔥',
+    title: 'Daily Streak',
+    body: 'Your streak counts how many <strong>days in a row</strong> you\'ve opened a flashcard and studied. Study today → streak grows by 1. Miss a day → it resets to 1. Try to keep it going! A 7-day streak earns you the Streak Master badge. 🎖️'
+  },
+  mastered: {
+    icon: '✅',
+    title: 'Mastered Cards',
+    body: 'A card is <strong>Mastered</strong> when you tap "Got it! ✅" on it. This tells the app you know it well. Mastered cards still come up sometimes so you don\'t forget them — but harder cards get more practice. Try to master all the cards in a topic! 💪'
+  }
+};
+function showStatTip(type) {
+  const t = STAT_TIPS[type]; if (!t) return;
+  document.getElementById('statTipIcon').textContent = t.icon;
+  document.getElementById('statTipTitle').textContent = t.title;
+  document.getElementById('statTipBody').innerHTML = t.body;
+  document.getElementById('statTipOverlay').classList.add('show');
+}
+function hideStatTip() {
+  document.getElementById('statTipOverlay').classList.remove('show');
+}
+
+/* ── Home mascot first-login tip ── */
+function showHomeMascotTip(userId, mascotEmoji) {
+  const key = 'gsc_intro_seen_' + userId;
+  if (localStorage.getItem(key)) return; // already seen
+  const wrap = document.getElementById('homeMascotWrap');
+  const em = document.getElementById('homeMascotEmoji');
+  if (!wrap || !em) return;
+  em.textContent = mascotEmoji || '🚀';
+  wrap.classList.add('hm-show');
+}
+function dismissMascotTip() {
+  const wrap = document.getElementById('homeMascotWrap');
+  if (wrap) wrap.classList.remove('hm-show');
+  if (currentProfile && currentProfile.id) {
+    localStorage.setItem('gsc_intro_seen_' + currentProfile.id, '1');
+  }
+}
+
 function renderHome() {
   const p = currentProfile;
   const tm = THEMES[p.themeMaths]||THEMES.space, te = THEMES[p.themeEnglish]||THEMES.library;
@@ -940,6 +1020,8 @@ function renderHome() {
   if(sbm) sbm.textContent=tm.mascot||'🚀';
   if(sbe) sbe.textContent=te.mascot||'🦉';
   renderChallengePanel(getTodayChallenges());
+  // Show mascot tip on first visit for this profile
+  showHomeMascotTip(_uid, tm.mascot||'🚀');
 }
 function goToSubject(subject) {
   if (currentProfile) localStorage.setItem('gsc_profile', JSON.stringify({ id:currentProfile.id, name:currentProfile.name, themeMaths:currentProfile.themeMaths||'space', themeEnglish:currentProfile.themeEnglish||'library' }));
