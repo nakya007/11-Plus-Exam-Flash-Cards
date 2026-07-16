@@ -585,6 +585,11 @@ async function _loadProfile(id) {
       const fsXp = fsData.xp || 0;
       const mergedXp = Math.max(lsXp, fsXp);
       localStorage.setItem('gsc_xp_'+id, JSON.stringify(mergedXp));
+      // Subject XP — merge the same way
+      const lsXpM = parseInt(localStorage.getItem('gsc_xp_maths_'+id)||'0')||0;
+      localStorage.setItem('gsc_xp_maths_'+id, JSON.stringify(Math.max(lsXpM, fsData.xpMaths||0)));
+      const lsXpE = parseInt(localStorage.getItem('gsc_xp_english_'+id)||'0')||0;
+      localStorage.setItem('gsc_xp_english_'+id, JSON.stringify(Math.max(lsXpE, fsData.xpEnglish||0)));
 
       // Streak: take the higher count; keep today's date so streak logic doesn't break
       const lsStreak = JSON.parse(localStorage.getItem('gsc_streak_'+id)||'{"day":"","count":0}');
@@ -952,19 +957,43 @@ async function init() {
     const sessionUser = sessionStorage.getItem('gsc_session_user');
 
     if (userId && sessionUser === userId) {
-      try {
-        const snap = await db.collection('users').doc(userId).get();
-        if (snap.exists) {
-          currentProfile = { id:userId, ...snap.data() };
-          saveProfileEntry(userId, currentProfile.name, currentProfile.themeMaths, currentProfile.themeEnglish);
-          applyTheme(currentProfile.themeMaths||'space');
-          clearTimeout(escape);
-          renderHome(); showScreen('screenHome');
-          db.collection('users').doc(userId).update({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
-          syncChallengeCompletions(userId).catch(()=>{});
-          return;
-        }
-      } catch(e) { console.warn('Firebase session resume failed', e); }
+      // ── Fast path: render immediately from localStorage cache ──────────
+      const cached = getSavedProfiles().find(p => p.id === userId);
+      if (cached) {
+        currentProfile = {
+          id: userId,
+          name: cached.name,
+          themeMaths: cached.themeMaths || 'space',
+          themeEnglish: cached.themeEnglish || 'library'
+        };
+        applyTheme(currentProfile.themeMaths);
+        clearTimeout(escape);
+        renderHome(); showScreen('screenHome');
+      }
+      // ── Background sync: refresh from Firestore without blocking UI ────
+      db.collection('users').doc(userId).get().then(snap => {
+        if (!snap.exists) { if (!cached) { _goWelcome(); } return; }
+        currentProfile = { id: userId, ...snap.data() };
+        saveProfileEntry(userId, currentProfile.name, currentProfile.themeMaths, currentProfile.themeEnglish);
+        applyTheme(currentProfile.themeMaths || 'space');
+        renderHome(); // silently refresh stats/XP/badges shown on home
+        if (!cached) { clearTimeout(escape); showScreen('screenHome'); }
+        db.collection('users').doc(userId).update({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
+        // Inline challenge sync — reuse the snap we already fetched (avoids a second Firestore read)
+        try {
+          const d = snap.data();
+          if (d.challenges) {
+            const local = JSON.parse(localStorage.getItem('gsc_challenges')||'{}');
+            Object.keys(d.challenges).forEach(k => { if (!local[k]) local[k]={}; Object.assign(local[k], d.challenges[k]); });
+            localStorage.setItem('gsc_challenges', JSON.stringify(local));
+            renderChallengePanel(getTodayChallenges());
+          }
+        } catch(e) {}
+      }).catch(e => {
+        console.warn('Firebase session resume failed', e);
+        if (!cached) { clearTimeout(escape); _goWelcome(); }
+      });
+      if (cached) return; // home screen already shown — background sync handles the rest
     }
 
     clearTimeout(escape);
