@@ -405,7 +405,8 @@ async function resetStudentProgress(id, name) {
       badges: [],
       quizCorrect: 0,
       aceTopics: [],
-      masteredTopics: []
+      masteredTopics: [],
+      resetVersion: Date.now()  // tells all devices to wipe their local cache
     });
     alert(`✅ ${name}'s progress has been reset.`);
     loadStudents();
