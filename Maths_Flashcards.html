@@ -492,6 +492,7 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
   var cfg={apiKey:"AIzaSyCEyADr23BV0nASX_RlTfQR-Ewt0XMFYJ8",authDomain:"grammar-school-flash-cards.firebaseapp.com",projectId:"grammar-school-flash-cards",storageBucket:"grammar-school-flash-cards.firebasestorage.app",messagingSenderId:"699212561669",appId:"1:699212561669:web:1fa5b71c77b178fb084b6c"};
   if(!firebase.apps.length)firebase.initializeApp(cfg);
   window.db=firebase.firestore();
+  window.db.enablePersistence({synchronizeTabs:true}).catch(function(){});
 })();
 </script>
 
@@ -531,27 +532,43 @@ function _goHome(){document.body.style.transition='opacity 0.15s ease';document.
 
 /* ── Firestore sync (keeps admin dashboard up to date) ── */
 var _syncTimer=null;
-function _syncToFirestore(){
+function _flushToFirestore(){
   var uid=_cachedUid;
   if(_isAdminPreview||!uid||uid==='shared'||typeof window.db==='undefined')return;
-  clearTimeout(_syncTimer);
-  _syncTimer=setTimeout(function(){
-    var xp=lsGet(_uk('gsc_xp'),0);
-    var streak=lsGet(_uk('gsc_streak'),{day:'',count:0});
-    var ratings=lsGet(_uk('gsc_ratings'),{});
-    window.db.collection('users').doc(uid).update({
-      xp:xp,
-      xpMaths:lsGet(_uk('gsc_xp_maths'),0),
-      streak:streak.count||0,
-      ratings:ratings,
-      badges:lsGet(_uk('gsc_badges'),[]),
-      quizCorrect:lsGet(_uk('gsc_quiz_correct'),0),
-      aceTopics:lsGet(_uk('gsc_ace_topics'),[]),
-      masteredTopics:lsGet(_uk('gsc_mastered_topics'),[]),
-      lastActive:firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(function(){});
-  },5000);
+  clearTimeout(_syncTimer);_syncTimer=null;
+  var xp=lsGet(_uk('gsc_xp'),0);
+  var streak=lsGet(_uk('gsc_streak'),{day:'',count:0});
+  var ratings=lsGet(_uk('gsc_ratings'),{});
+  window.db.collection('users').doc(uid).update({
+    xp:xp,
+    xpMaths:lsGet(_uk('gsc_xp_maths'),0),
+    streak:streak.count||0,
+    ratings:ratings,
+    badges:lsGet(_uk('gsc_badges'),[]),
+    quizCorrect:lsGet(_uk('gsc_quiz_correct'),0),
+    aceTopics:lsGet(_uk('gsc_ace_topics'),[]),
+    masteredTopics:lsGet(_uk('gsc_mastered_topics'),[]),
+    lastActive:firebase.firestore.FieldValue.serverTimestamp()
+  }).catch(function(){});
 }
+function _syncToFirestore(){
+  if(_isAdminPreview||!_cachedUid||_cachedUid==='shared'||typeof window.db==='undefined')return;
+  clearTimeout(_syncTimer);
+  _syncTimer=setTimeout(_flushToFirestore,5000);
+}
+/* Flush immediately when page hides (tab switch, home button, navigation) — fixes cross-device sync */
+document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')_flushToFirestore();});
+window.addEventListener('pagehide',function(){_flushToFirestore();});
+/* Re-init on bfcache restore (iOS Safari back/forward) — fixes user data mixing */
+window.addEventListener('pageshow',function(e){
+  if(!e.persisted)return;
+  var freshUid=localStorage.getItem('gsc_userId')||'shared';
+  if(freshUid===_cachedUid)return;
+  _cachedUid=freshUid;
+  _ratingsCache=null;_totalGot=0;_badgesCache=null;_studyDayRecorded=false;
+  _TOPIC_SET=null;_TOPIC_CARD_COUNT=null;_CARDS_LOWER=null;
+  updateStatsRow();_initStreakDisplay();updateXPBar();
+});
 
 /* ── Sound ── */
 function _getAC(){if(!_audioCtx)_audioCtx=new(window.AudioContext||window.webkitAudioContext)();return _audioCtx;}
