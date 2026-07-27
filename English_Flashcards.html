@@ -2,9 +2,6 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>🦉 English Flashcards — 11+ Exam Prep</title>
 <link rel="manifest" href="manifest.json">
@@ -13,7 +10,14 @@
 <meta name="apple-mobile-web-app-title" content="GSPrep">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="theme-color" content="#1a1040">
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://www.gstatic.com">
+<link rel="preconnect" href="https://firestore.googleapis.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js" as="script">
+<link rel="preload" href="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js" as="script">
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap"></noscript>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 html{min-height:100%;background:#060618;}
@@ -195,7 +199,7 @@ body.admin-preview .card-session{display:block;}
 .quiz-area.qa-show{display:block;}
 .quiz-q-box{font-size:14px;font-weight:700;margin-bottom:10px;line-height:1.5;}
 .quiz-opts{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.quiz-opt{padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:#e8eaf6;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;text-align:left;transition:background 0.15s,transform 0.1s;min-height:44px;}
+.quiz-opt{padding:10px 12px;border-radius:12px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.07);color:#e8eaf6;cursor:pointer;font-family:'Nunito',sans-serif;font-size:13px;font-weight:600;text-align:left;transition:background 0.15s,transform 0.1s;min-height:44px;white-space:normal;word-break:break-word;line-height:1.4;}
 .quiz-opt:hover{background:rgba(255,255,255,0.15);transform:scale(1.02);}
 .quiz-opt.qo-correct{background:rgba(34,197,94,0.35);border-color:#22c55e;}
 .quiz-opt.qo-wrong{background:rgba(239,68,68,0.35);border-color:#ef4444;}
@@ -442,7 +446,7 @@ body.font-lg #cardQuestion{font-size:22px;}body.font-lg #cardAnswer{font-size:18
   var cfg={apiKey:"AIzaSyCEyADr23BV0nASX_RlTfQR-Ewt0XMFYJ8",authDomain:"grammar-school-flash-cards.firebaseapp.com",projectId:"grammar-school-flash-cards",storageBucket:"grammar-school-flash-cards.firebasestorage.app",messagingSenderId:"699212561669",appId:"1:699212561669:web:1fa5b71c77b178fb084b6c"};
   if(!firebase.apps.length)firebase.initializeApp(cfg);
   window.db=firebase.firestore();
-  window.db.enablePersistence({synchronizeTabs:true}).catch(function(){});
+  window.db.enablePersistence().catch(function(){});
 })();
 </script>
 
@@ -873,9 +877,12 @@ function renderQuiz(){
   if(!filtered||!filtered.length)return;
   var card=filtered[current];
   var correct=card.a;
-  var sameTopic=filtered.filter(function(c){return c.topic===card.topic&&c.a!==correct;});
-  var other=filtered.filter(function(c){return c.topic!==card.topic&&c.a!==correct;});
-  var pool=sameTopic.concat(other).sort(function(){return Math.random()-0.5;}).slice(0,3).map(function(c){return c.a;});
+  // Prioritise same-topic distractors so wrong choices are plausible
+  var sameTopic=filtered.filter(function(c){return c.topic===card.topic&&c.a!==correct;})
+                        .sort(function(){return Math.random()-0.5;});
+  var other=filtered.filter(function(c){return c.topic!==card.topic&&c.a!==correct;})
+                    .sort(function(){return Math.random()-0.5;});
+  var pool=sameTopic.slice(0,3).concat(other).slice(0,3).map(function(c){return c.a;});
   var opts=[correct].concat(pool).sort(function(){return Math.random()-0.5;});
   var qb=document.getElementById('quizQuestion');
   if(qb)qb.textContent=card.q;
@@ -883,7 +890,8 @@ function renderQuiz(){
   ob.innerHTML='';
   opts.forEach(function(o){
     var btn=document.createElement('button');btn.className='quiz-opt';
-    btn.textContent=o.length>70?o.substring(0,67)+'…':o;
+    btn.textContent=o;
+    btn.setAttribute('data-val',o);
     btn.onclick=function(){answerQuiz(o,correct,ob,card);};
     ob.appendChild(btn);
   });
@@ -892,8 +900,8 @@ function answerQuiz(chosen,correct,container,card){
   var btns=container.querySelectorAll('.quiz-opt');
   btns.forEach(function(b){
     b.onclick=null;
-    var t=b.textContent,c=correct.length>70?correct.substring(0,67)+'…':correct,ch=chosen.length>70?chosen.substring(0,67)+'…':chosen;
-    if(t===c)b.classList.add('qo-correct');else if(t===ch)b.classList.add('qo-wrong');
+    var v=b.getAttribute('data-val')||b.textContent;
+    if(v===correct)b.classList.add('qo-correct');else if(v===chosen)b.classList.add('qo-wrong');
   });
   var isCorrect=chosen===correct;
   if(isCorrect){
