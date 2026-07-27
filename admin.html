@@ -474,6 +474,7 @@ function updateSummaryBar(students) {
 }
 
 function buildStudentCard(s) {
+  _studentCache[s.id] = s; // register so openReport can look up by ID
   const card = document.createElement('div');
   card.id = 'scard_' + s.id;
   card.className = 'student-card' + (s.suspended ? ' suspended' : '');
@@ -547,7 +548,7 @@ function buildStudentCard(s) {
         <span style="font-size:14px;font-weight:900;letter-spacing:4px;color:${s.parentCode?'#93c5fd':'#fbbf24'};">${s.parentCode?'••••':'Not set'}</span>
         <button onclick="setParentCode('${s.id}','${escHtml(s.name||'Student')}')" style="background:none;border:1px solid ${s.parentCode?'rgba(96,165,250,0.3)':'rgba(251,191,36,0.4)'};color:${s.parentCode?'#60a5fa':'#fbbf24'};font-size:10px;font-weight:800;padding:3px 8px;border-radius:6px;cursor:pointer;font-family:inherit;">${s.parentCode?'Change':'Set'}</button>
       </div>
-      <button class="report-btn" style="flex:2;white-space:nowrap;min-width:120px;" onclick='openReport(${JSON.stringify(JSON.stringify(s))})'>📄 Report</button>
+      <button class="report-btn" style="flex:2;white-space:nowrap;min-width:120px;" onclick="openReport('${s.id}')">📄 Report</button>
       <button class="report-btn" style="flex:1;white-space:nowrap;background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.35);color:#c4b5fd;" onclick='showHabitReport("${s.id}","${escHtml(s.name||'Student')}")'>📅 Habits</button>
       <button class="report-btn" style="flex:1;white-space:nowrap;background:${s.suspended?'rgba(74,222,128,0.12)':'rgba(251,191,36,0.12)'};border:1px solid ${s.suspended?'rgba(74,222,128,0.3)':'rgba(251,191,36,0.3)'};color:${s.suspended?'#86efac':'#fbbf24'};" onclick='suspendStudent("${s.id}","${escHtml(s.name||'Student')}",${!!s.suspended})'>${s.suspended?'✅ Unsuspend':'⚠️ Suspend'}</button>
       <button class="report-btn" style="flex:1;white-space:nowrap;background:rgba(251,146,60,0.15);border:1px solid rgba(251,146,60,0.35);color:#fdba74;" onclick='resetStudentProgress("${s.id}","${escHtml(s.name||'Student')}")'>🔄 Reset</button>
@@ -559,9 +560,11 @@ function buildStudentCard(s) {
 
 // ── Report ────────────────────────────────────────────────────────
 let currentReportStudent = null;
+const _studentCache = {}; // id → student object, avoids JSON-in-onclick issues
 
-function openReport(sJson) {
-  const s = JSON.parse(sJson);
+function openReport(id) {
+  const s = _studentCache[id];
+  if (!s) return;
   currentReportStudent = s;
   const ratings  = s.ratings || {};
   const total    = Object.keys(ratings).length;
