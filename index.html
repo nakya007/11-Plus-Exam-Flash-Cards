@@ -1194,17 +1194,10 @@ function renderHome() {
   // Show mascot tip on first visit for this profile
   showHomeMascotTip(_uid, tm.mascot||'🚀');
 }
-async function goToSubject(subject) {
+function goToSubject(subject) {
   if (currentProfile) localStorage.setItem('gsc_profile', JSON.stringify({ id:currentProfile.id, name:currentProfile.name, themeMaths:currentProfile.themeMaths||'space', themeEnglish:currentProfile.themeEnglish||'library' }));
-  // Wait for background Firestore sync so the flashcard page gets up-to-date data in localStorage.
-  // Without this, navigating immediately after login gives the flashcard page empty localStorage on a new device.
-  if (!_bgSyncReady && _bgSyncPromise) {
-    const btn = document.querySelector('.btn-' + subject);
-    if (btn) { const orig = btn.innerHTML; btn.innerHTML = '⏳ Syncing…'; btn.disabled = true;
-      await Promise.race([_bgSyncPromise, new Promise(r => setTimeout(r, 3000))]);
-      btn.innerHTML = orig; btn.disabled = false; }
-    else { await Promise.race([_bgSyncPromise, new Promise(r => setTimeout(r, 3000))]); }
-  }
+  // If background sync hasn't finished, flag the flashcard page to do its own merge-sync on load
+  if (!_bgSyncReady) sessionStorage.setItem('gsc_needs_sync', '1');
   window.location.href = subject==='maths' ? 'Maths_Flashcards.html' : 'English_Flashcards.html';
 }
 function openThemeChanger() {
