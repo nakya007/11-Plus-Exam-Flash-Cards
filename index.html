@@ -522,6 +522,7 @@ const THEMES = {
 };
 
 let currentProfile = null, selectedMaths = 'space', selectedEnglish = 'library';
+let _bgSyncReady = false, _bgSyncPromise = null; // track background Firestore sync so goToSubject can wait
 let pendingSubject = 'maths', pendingTheme = 'space';
 let selectedTheme = 'space', _newPin = '', _pendingNewProfile = null;
 
@@ -1026,7 +1027,7 @@ async function init() {
         renderHome(); showScreen('screenHome');
       }
       // ── Background sync: refresh from Firestore without blocking UI ────
-      db.collection('users').doc(userId).get().then(async snap => {
+      _bgSyncPromise = db.collection('users').doc(userId).get().then(async snap => {
         if (!snap.exists) { if (!cached) { _goWelcome(); } return; }
         // Route through _loadProfile so resetVersion detection, merge, and PIN cache all run
         await _loadProfile(userId, snap, true);
@@ -1034,7 +1035,7 @@ async function init() {
       }).catch(e => {
         console.warn('Firebase session resume failed', e);
         if (!cached) { clearTimeout(escape); _goWelcome(); }
-      });
+      }).finally(function(){ _bgSyncReady = true; });
       if (cached) return; // home screen already shown — background sync handles the rest
     }
 
@@ -1193,8 +1194,17 @@ function renderHome() {
   // Show mascot tip on first visit for this profile
   showHomeMascotTip(_uid, tm.mascot||'🚀');
 }
-function goToSubject(subject) {
+async function goToSubject(subject) {
   if (currentProfile) localStorage.setItem('gsc_profile', JSON.stringify({ id:currentProfile.id, name:currentProfile.name, themeMaths:currentProfile.themeMaths||'space', themeEnglish:currentProfile.themeEnglish||'library' }));
+  // Wait for background Firestore sync so the flashcard page gets up-to-date data in localStorage.
+  // Without this, navigating immediately after login gives the flashcard page empty localStorage on a new device.
+  if (!_bgSyncReady && _bgSyncPromise) {
+    const btn = document.querySelector('.btn-' + subject);
+    if (btn) { const orig = btn.innerHTML; btn.innerHTML = '⏳ Syncing…'; btn.disabled = true;
+      await Promise.race([_bgSyncPromise, new Promise(r => setTimeout(r, 3000))]);
+      btn.innerHTML = orig; btn.disabled = false; }
+    else { await Promise.race([_bgSyncPromise, new Promise(r => setTimeout(r, 3000))]); }
+  }
   window.location.href = subject==='maths' ? 'Maths_Flashcards.html' : 'English_Flashcards.html';
 }
 function openThemeChanger() {
