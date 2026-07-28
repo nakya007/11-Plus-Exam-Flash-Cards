@@ -94,6 +94,20 @@ body{font-family:'Nunito',sans-serif;background:#0a0a1a;color:#e8eaf6;min-height
 .btn-print{background:linear-gradient(90deg,#1565c0,#42a5f5);color:#fff;}
 .btn-close{background:rgba(255,255,255,0.07);color:#e8eaf6;border:1px solid rgba(255,255,255,0.12);}
 
+/* ── Print: show only the report modal ── */
+@media print {
+  body > *:not(#reportModal) { display: none !important; }
+  #reportModal { display: block !important; position: static !important; background: none !important; padding: 0 !important; }
+  .modal-box { background: #fff !important; color: #000 !important; box-shadow: none !important; border-radius: 0 !important; max-width: 100% !important; max-height: none !important; overflow: visible !important; padding: 24px !important; }
+  .modal-title { color: #000 !important; font-size: 22px !important; }
+  .modal-sub { color: #555 !important; opacity: 1 !important; }
+  .report-section-title { color: #555 !important; opacity: 1 !important; border-color: #ccc !important; }
+  .report-row { color: #000 !important; border-color: #ddd !important; }
+  .report-val { color: #000 !important; }
+  .badge-chip { background: #eee !important; color: #000 !important; }
+  .modal-actions { display: none !important; }
+}
+
 /* Invite code cards */
 .code-card{background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.09);border-radius:16px;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .code-card.inactive{opacity:0.45;}
@@ -584,11 +598,12 @@ function openReport(id) {
     if (val === 'hard') topicStats[topic].hard++;
   });
   const topicRows = Object.entries(topicStats)
+    .filter(([, v]) => v.total >= 2)
     .sort((a, b) => (b[1].got/Math.max(b[1].total,1)) - (a[1].got/Math.max(a[1].total,1)))
     .map(([topic, v]) => {
       const pct = Math.round((v.got / v.total) * 100);
       const status = pct >= 75 ? '✅ Strong' : pct >= 40 ? '🟡 Developing' : '❗ Needs Focus';
-      return `<div class="report-row"><span>${escHtml(topic)}</span><span class="report-val">${status} (${pct}%)</span></div>`;
+      return `<div class="report-row"><span>${escHtml(topic)}</span><span class="report-val">${status} — ${v.got}/${v.total} mastered</span></div>`;
     }).join('');
 
   const badges = (s.badges || []);
