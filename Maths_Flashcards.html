@@ -571,7 +571,7 @@ function _flushToFirestore(){
 function _syncToFirestore(){
   if(_isAdminPreview||!_cachedUid||_cachedUid==='shared'||typeof window.db==='undefined')return;
   clearTimeout(_syncTimer);
-  _syncTimer=setTimeout(_flushToFirestore,2000);
+  _syncTimer=setTimeout(_flushToFirestore,500);
 }
 /* Flush immediately when page hides (tab switch, home button, navigation) — fixes cross-device sync */
 document.addEventListener('visibilitychange',function(){if(document.visibilityState==='hidden')_flushToFirestore();});
@@ -1060,19 +1060,43 @@ function _stopConf(){if(_confAnim){cancelAnimationFrame(_confAnim);_confAnim=nul
 (function(){var sx=0,sy=0,th=50,_mt=false;window.addEventListener('touchstart',function(e){if(e.touches.length>1){_mt=true;return;}sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});window.addEventListener('touchend',function(e){if(_mt){if(e.touches.length===0)_mt=false;return;}var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>th&&Math.abs(dx)>Math.abs(dy)){isSwiping=true;if(dx<0)navigate(1);else navigate(-1);setTimeout(function(){isSwiping=false;},350);}else if(Math.abs(dy)>th&&Math.abs(dy)>Math.abs(dx)){isSwiping=true;flipCard();setTimeout(function(){isSwiping=false;},350);}},{passive:true});})();
 
 initFont(); initMute(); _initStreakDisplay();
-/* On page load: only update lastActive — never write all fields (would wipe Firestore with empty localStorage before data loads) */
+/* On page load: seed localStorage from Firestore if this is a new device (empty ratings).
+   Also updates lastActive and pre-fetches parent code. Single Firestore read covers all three. */
 (function(){
   var _u=localStorage.getItem('gsc_userId');
   if(!_u||_u==='shared'||_isAdminPreview||typeof window.db==='undefined')return;
-  window.db.collection('users').doc(_u).update({lastActive:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
-  /* Pre-fetch parent code if not cached locally — skip if already checked this session */
+  var _hasLocal=!!localStorage.getItem('gsc_ratings_'+_u);
   var _pcKey='gsc_parentCode_'+_u;
-  if(!localStorage.getItem(_pcKey)&&!sessionStorage.getItem('gsc_pc_checked_'+_u)){
-    sessionStorage.setItem('gsc_pc_checked_'+_u,'1');
-    window.db.collection('users').doc(_u).get().then(function(d){
-      if(d.exists&&d.data().parentCode)localStorage.setItem(_pcKey,d.data().parentCode);
-    }).catch(function(){});
+  var _needPc=!localStorage.getItem(_pcKey)&&!sessionStorage.getItem('gsc_pc_checked_'+_u);
+  if(_hasLocal&&!_needPc){
+    // Already have all data — just ping lastActive
+    window.db.collection('users').doc(_u).update({lastActive:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
+    return;
   }
+  // Either no local data (new device) or parent code missing — do a full read
+  if(_needPc)sessionStorage.setItem('gsc_pc_checked_'+_u,'1');
+  window.db.collection('users').doc(_u).get().then(function(snap){
+    if(!snap.exists)return;
+    var d=snap.data();
+    if(_needPc&&d.parentCode)localStorage.setItem(_pcKey,d.parentCode);
+    if(!_hasLocal){
+      // Seed all user data into localStorage so topic tiles and XP bar show correctly
+      if(d.ratings)localStorage.setItem('gsc_ratings_'+_u,JSON.stringify(d.ratings));
+      if(d.xp!==undefined)localStorage.setItem('gsc_xp_'+_u,JSON.stringify(d.xp));
+      if(d.xpMaths!==undefined)localStorage.setItem('gsc_xp_maths_'+_u,JSON.stringify(d.xpMaths));
+      if(d.xpEnglish!==undefined)localStorage.setItem('gsc_xp_english_'+_u,JSON.stringify(d.xpEnglish));
+      if(d.streak!==undefined)localStorage.setItem('gsc_streak_'+_u,JSON.stringify({day:'',count:d.streak}));
+      if(d.badges)localStorage.setItem('gsc_badges_'+_u,JSON.stringify(d.badges));
+      if(d.quizCorrect!==undefined)localStorage.setItem('gsc_quiz_correct_'+_u,JSON.stringify(d.quizCorrect));
+      if(d.aceTopics)localStorage.setItem('gsc_ace_topics_'+_u,JSON.stringify(d.aceTopics));
+      if(d.masteredTopics)localStorage.setItem('gsc_mastered_topics_'+_u,JSON.stringify(d.masteredTopics));
+      // Re-render with synced data — _uk self-heal will pick up the new values
+      _ratingsCache=null;_totalGot=0;_badgesCache=null;
+      updateStatsRow();_initStreakDisplay();updateXPBar();
+      refreshTileProgress();updateProgressSection();
+    }
+    window.db.collection('users').doc(_u).update({lastActive:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
+  }).catch(function(){});
 })();
 </script>
 <!-- ══ MAIN SCRIPT ══ -->
