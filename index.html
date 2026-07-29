@@ -313,7 +313,8 @@ body{font-family:'Nunito',sans-serif;background:radial-gradient(ellipse at 50% 0
     <div class="pin-dot" id="sdin3"></div>
   </div>
   <div class="pin-grid" id="signinGrid"></div>
-  <div class="err" id="signinErr" style="margin-top:14px;"></div>
+  <div id="signinStatus" style="margin-top:14px;min-height:20px;font-size:13px;text-align:center;color:rgba(255,255,255,0.5);"></div>
+  <div class="err" id="signinErr" style="margin-top:4px;"></div>
   <div class="pin-note">Forgotten your PIN? Ask your tutor to look it up.</div>
   <button class="back-link" style="margin-top:12px;" onclick="showScreen('screenWelcome');resetSignIn()">← Back</button>
 </div>
@@ -835,45 +836,72 @@ function initSignInPad() {
       document.getElementById('signinErr').textContent = 'Please enter your name first.';
       _signinPad.shake(); return;
     }
-    document.getElementById('signinErr').textContent = 'Looking up your profile…';
+    const _statusEl = document.getElementById('signinStatus');
+    const _errEl = document.getElementById('signinErr');
+    _statusEl.textContent = '🔍 Looking up your profile…';
+    _errEl.textContent = '';
     try {
-      // Check local profile cache first (O(1)) before falling back to full collection scan
       let found = null, suspended = null;
       const cachedProfiles = getSavedProfiles();
       const cachedMatch = cachedProfiles.find(p => p.name && p.name.toLowerCase() === name.toLowerCase());
       if (cachedMatch) {
-        const docSnap = await db.collection('users').doc(cachedMatch.id).get();
-        if (docSnap.exists) {
-          const d = docSnap.data();
-          if (d.pin === pin) { if (d.suspended) suspended = d; else found = { id: cachedMatch.id, ...d }; }
+        // Fast path: if PIN is cached locally, verify instantly without a network call
+        const cachedPin = localStorage.getItem('gsc_pin_cache_' + cachedMatch.id);
+        if (cachedPin) {
+          if (cachedPin === pin) {
+            found = { id: cachedMatch.id, ...cachedMatch };
+            // Start background Firestore sync to get full profile data
+            db.collection('users').doc(cachedMatch.id).get().then(docSnap => {
+              if (docSnap.exists) {
+                const d = docSnap.data();
+                if (d.suspended) return; // suspended — log out
+                _loadProfile(cachedMatch.id, docSnap, true).catch(()=>{});
+              }
+            }).catch(()=>{});
+          }
+          // If cachedPin exists but wrong, fall through to full scan (might be outdated)
+        }
+        if (!found) {
+          // No cached PIN or PIN mismatch — fetch from Firestore
+          const docSnap = await db.collection('users').doc(cachedMatch.id).get();
+          if (docSnap.exists) {
+            const d = docSnap.data();
+            if (d.pin === pin) { if (d.suspended) suspended = d; else found = { id: cachedMatch.id, ...d }; }
+          }
         }
       }
       if (!found && !suspended) {
         // Fallback: full scan (new device, no local cache)
+        _statusEl.textContent = '🔍 Searching all profiles…';
         const snap = await db.collection('users').get();
         snap.forEach(doc => { const d=doc.data(); if (d.name && d.name.toLowerCase()===name.toLowerCase() && d.pin===pin) { if(d.suspended) suspended=d; else found = { id: doc.id, ...d }; } });
       }
       if (suspended) {
-        document.getElementById('signinErr').textContent = '⚠️ This account has been suspended. Please contact your admin.';
+        _statusEl.textContent = '';
+        _errEl.textContent = '⚠️ This account has been suspended. Please contact your admin.';
         _signinPad.shake(); return;
       }
       if (found) {
         currentProfile = found;
+        if (found.pin) localStorage.setItem('gsc_pin_cache_' + found.id, found.pin);
         saveProfileEntry(found.id, found.name, found.themeMaths, found.themeEnglish);
         localStorage.setItem('gsc_userId', found.id);
-        sessionStorage.setItem('gsc_session_user', found.id); // PIN verified — remember for this session
+        sessionStorage.setItem('gsc_session_user', found.id);
         applyTheme(found.themeMaths || 'space');
         renderHome(); showScreen('screenHome');
         db.collection('users').doc(found.id).update({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
         syncChallengeCompletions(found.id).catch(()=>{});
-        document.getElementById('signinErr').textContent = '';
+        _statusEl.textContent = '';
+        _errEl.textContent = '';
         resetSignIn();
       } else {
-        document.getElementById('signinErr').textContent = '❌ Name or PIN not recognised — try again.';
+        _statusEl.textContent = '';
+        _errEl.textContent = '❌ Name or PIN not recognised — try again.';
         _signinPad.shake();
       }
     } catch(e) {
-      document.getElementById('signinErr').textContent = '⚠️ Connection error — try again.';
+      _statusEl.textContent = '';
+      _errEl.textContent = '⚠️ Connection error — try again.';
       _signinPad.shake();
     }
   });
@@ -882,6 +910,7 @@ function resetSignIn() {
   if (_signinPad) _signinPad.reset();
   document.getElementById('signinName').value = '';
   document.getElementById('signinErr').textContent = '';
+  const _s = document.getElementById('signinStatus'); if (_s) _s.textContent = '';
 }
 
 // ── PIN set overlay (profile creation) ──────────────────────────
@@ -908,6 +937,7 @@ async function finishCreateProfile(profileData, pin) {
     await db.collection('users').doc(userId).set(profile);
     localStorage.setItem('gsc_userId', userId);
     sessionStorage.setItem('gsc_session_user', userId); // PIN just set — session is verified
+    localStorage.setItem('gsc_pin_cache_' + userId, pin); // cache PIN for instant re-login
     saveProfileEntry(userId, profile.name, profile.themeMaths, profile.themeEnglish);
     currentProfile = { id: userId, ...profile };
     document.getElementById('pinSetOverlay').classList.remove('open');
