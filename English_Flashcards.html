@@ -992,51 +992,40 @@ function _stopConf(){if(_confAnim){cancelAnimationFrame(_confAnim);_confAnim=nul
 (function(){var sx=0,sy=0,th=50,_mt=false;window.addEventListener('touchstart',function(e){if(e.touches.length>1){_mt=true;return;}sx=e.touches[0].clientX;sy=e.touches[0].clientY;},{passive:true});window.addEventListener('touchend',function(e){if(_mt){if(e.touches.length===0)_mt=false;return;}var dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>th&&Math.abs(dx)>Math.abs(dy)){isSwiping=true;if(dx<0)navigate(1);else navigate(-1);setTimeout(function(){isSwiping=false;},350);}else if(Math.abs(dy)>th&&Math.abs(dy)>Math.abs(dx)){isSwiping=true;flipCard();setTimeout(function(){isSwiping=false;},350);}},{passive:true});})();
 
 initFont(); initMute(); _initStreakDisplay();
-/* On page load: seed localStorage from Firestore if new device, or merge if index.html sync
-   hadn't finished when the user navigated here (gsc_needs_sync flag). */
+/* On page load: always merge Firestore → localStorage in the background.
+   Non-blocking: page renders from localStorage immediately.
+   Firebase offline cache makes this a fast cache-hit on same-device revisits;
+   on cross-device visits it fetches the latest data from the server. */
 (function(){
   var _u=localStorage.getItem('gsc_userId');
   if(!_u||_u==='shared'||_isAdminPreview||typeof window.db==='undefined')return;
   var _hasLocal=!!localStorage.getItem('gsc_ratings_'+_u);
-  var _needsSync=sessionStorage.getItem('gsc_needs_sync')==='1';
-  if(_needsSync)sessionStorage.removeItem('gsc_needs_sync');
   var _pcKey='gsc_parentCode_'+_u;
   var _needPc=!localStorage.getItem(_pcKey)&&!sessionStorage.getItem('gsc_pc_checked_'+_u);
-  if(_hasLocal&&!_needPc&&!_needsSync){
-    // Already up to date — just ping lastActive
-    window.db.collection('users').doc(_u).update({lastActive:firebase.firestore.FieldValue.serverTimestamp()}).catch(function(){});
-    return;
-  }
   if(_needPc)sessionStorage.setItem('gsc_pc_checked_'+_u,'1');
+  sessionStorage.removeItem('gsc_needs_sync');
   window.db.collection('users').doc(_u).get().then(function(snap){
     if(!snap.exists)return;
     var d=snap.data();
     if(_needPc&&d.parentCode)localStorage.setItem(_pcKey,d.parentCode);
+    // Merge: Firestore fills gaps; local wins on conflicts (local activity is more recent)
+    var lsR=JSON.parse(localStorage.getItem('gsc_ratings_'+_u)||'{}');
+    var fsR=d.ratings||{};
+    localStorage.setItem('gsc_ratings_'+_u,JSON.stringify(Object.assign({},fsR,lsR)));
+    var lsX=parseInt(localStorage.getItem('gsc_xp_'+_u)||'0')||0;
+    if((d.xp||0)>lsX)localStorage.setItem('gsc_xp_'+_u,JSON.stringify(d.xp));
+    var lsXM=parseInt(localStorage.getItem('gsc_xp_maths_'+_u)||'0')||0;
+    if((d.xpMaths||0)>lsXM)localStorage.setItem('gsc_xp_maths_'+_u,JSON.stringify(d.xpMaths));
+    var lsXE=parseInt(localStorage.getItem('gsc_xp_english_'+_u)||'0')||0;
+    if((d.xpEnglish||0)>lsXE)localStorage.setItem('gsc_xp_english_'+_u,JSON.stringify(d.xpEnglish));
+    var lsB=JSON.parse(localStorage.getItem('gsc_badges_'+_u)||'[]');
+    var fsB=d.badges||[];
+    if(fsB.length>lsB.length)localStorage.setItem('gsc_badges_'+_u,JSON.stringify(Array.from(new Set([].concat(fsB,lsB)))));
     if(!_hasLocal){
-      // Brand new device — seed everything from Firestore
-      if(d.ratings)localStorage.setItem('gsc_ratings_'+_u,JSON.stringify(d.ratings));
-      if(d.xp!==undefined)localStorage.setItem('gsc_xp_'+_u,JSON.stringify(d.xp));
-      if(d.xpMaths!==undefined)localStorage.setItem('gsc_xp_maths_'+_u,JSON.stringify(d.xpMaths));
-      if(d.xpEnglish!==undefined)localStorage.setItem('gsc_xp_english_'+_u,JSON.stringify(d.xpEnglish));
       if(d.streak!==undefined)localStorage.setItem('gsc_streak_'+_u,JSON.stringify({day:'',count:d.streak}));
-      if(d.badges)localStorage.setItem('gsc_badges_'+_u,JSON.stringify(d.badges));
       if(d.quizCorrect!==undefined)localStorage.setItem('gsc_quiz_correct_'+_u,JSON.stringify(d.quizCorrect));
       if(d.aceTopics)localStorage.setItem('gsc_ace_topics_'+_u,JSON.stringify(d.aceTopics));
       if(d.masteredTopics)localStorage.setItem('gsc_mastered_topics_'+_u,JSON.stringify(d.masteredTopics));
-    } else if(_needsSync){
-      // index.html sync was still in flight — merge Firestore data (Firestore fills gaps; local wins conflicts)
-      var lsR=JSON.parse(localStorage.getItem('gsc_ratings_'+_u)||'{}');
-      var fsR=d.ratings||{};
-      localStorage.setItem('gsc_ratings_'+_u,JSON.stringify(Object.assign({},fsR,lsR)));
-      var lsX=parseInt(localStorage.getItem('gsc_xp_'+_u)||'0')||0;
-      if((d.xp||0)>lsX)localStorage.setItem('gsc_xp_'+_u,JSON.stringify(d.xp));
-      var lsXM=parseInt(localStorage.getItem('gsc_xp_maths_'+_u)||'0')||0;
-      if((d.xpMaths||0)>lsXM)localStorage.setItem('gsc_xp_maths_'+_u,JSON.stringify(d.xpMaths));
-      var lsXE=parseInt(localStorage.getItem('gsc_xp_english_'+_u)||'0')||0;
-      if((d.xpEnglish||0)>lsXE)localStorage.setItem('gsc_xp_english_'+_u,JSON.stringify(d.xpEnglish));
-      var lsB=JSON.parse(localStorage.getItem('gsc_badges_'+_u)||'[]');
-      var fsB=d.badges||[];
-      if(fsB.length>lsB.length)localStorage.setItem('gsc_badges_'+_u,JSON.stringify(Array.from(new Set([].concat(fsB,lsB)))));
     }
     _ratingsCache=null;_totalGot=0;_badgesCache=null;
     updateStatsRow();_initStreakDisplay();updateXPBar();
