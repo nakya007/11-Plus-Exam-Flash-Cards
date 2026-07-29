@@ -1196,8 +1196,6 @@ function renderHome() {
 }
 function goToSubject(subject) {
   if (currentProfile) localStorage.setItem('gsc_profile', JSON.stringify({ id:currentProfile.id, name:currentProfile.name, themeMaths:currentProfile.themeMaths||'space', themeEnglish:currentProfile.themeEnglish||'library' }));
-  // If background sync hasn't finished, flag the flashcard page to do its own merge-sync on load
-  if (!_bgSyncReady) sessionStorage.setItem('gsc_needs_sync', '1');
   window.location.href = subject==='maths' ? 'Maths_Flashcards.html' : 'English_Flashcards.html';
 }
 function openThemeChanger() {
