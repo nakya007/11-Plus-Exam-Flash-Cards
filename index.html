@@ -587,14 +587,15 @@ async function _loadProfile(id, snapOverride, backgroundSync) {
     // Background sync always reads from server (bypasses Firestore persistence cache)
     // so admin resets are detected even when the local cache is stale
     let snap;
-    if (snapOverride) {
-      snap = snapOverride;
-    } else if (backgroundSync) {
+    if (backgroundSync) {
+      // backgroundSync ALWAYS reads from server — snapOverride may be stale cache, ignore it
       try {
         snap = await db.collection('users').doc(id).get({source:'server'});
       } catch(e) {
-        snap = await db.collection('users').doc(id).get(); // offline fallback to cache
+        snap = snapOverride || await db.collection('users').doc(id).get(); // offline: use override or cache
       }
+    } else if (snapOverride) {
+      snap = snapOverride;
     } else {
       snap = await db.collection('users').doc(id).get();
     }
@@ -891,6 +892,8 @@ function initSignInPad() {
         renderHome(); showScreen('screenHome');
         db.collection('users').doc(found.id).update({ lastActive: firebase.firestore.FieldValue.serverTimestamp() }).catch(()=>{});
         syncChallengeCompletions(found.id).catch(()=>{});
+        // Background: seed localStorage from fresh server data so XP/ratings/mastered are correct
+        _loadProfile(found.id, null, true).catch(()=>{});
         _statusEl.textContent = '';
         _errEl.textContent = '';
         resetSignIn();
