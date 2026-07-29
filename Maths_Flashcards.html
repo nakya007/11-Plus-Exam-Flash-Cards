@@ -1072,7 +1072,10 @@ initFont(); initMute(); _initStreakDisplay();
   var _needPc=!localStorage.getItem(_pcKey)&&!sessionStorage.getItem('gsc_pc_checked_'+_u);
   if(_needPc)sessionStorage.setItem('gsc_pc_checked_'+_u,'1');
   sessionStorage.removeItem('gsc_needs_sync');
-  window.db.collection('users').doc(_u).get().then(function(snap){
+  // Force server read so cross-device activity is always visible (bypasses stale offline cache)
+  var _fsGet = window.db.collection('users').doc(_u).get({source:'server'});
+  _fsGet = _fsGet.catch(function(){ return window.db.collection('users').doc(_u).get(); });
+  _fsGet.then(function(snap){
     if(!snap.exists)return;
     var d=snap.data();
     if(_needPc&&d.parentCode)localStorage.setItem(_pcKey,d.parentCode);
